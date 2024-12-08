@@ -9,33 +9,28 @@
         Icon="/Assets/avalonia-logo.ico"
         Title="OurGameAvaloniaApp"
 	    Background="#FFF0F5">
-	<Grid >
+	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
 		</Grid.RowDefinitions>
-		<Grid Grid.Row="0">
-			<Border Margin="0"
-			CornerRadius="0"
-			Background="#f5c1ea">
-				<StackPanel>
-					<Menu>
-						<MenuItem Header="_File">
-							<MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
-						</MenuItem>
-						<MenuItem Header="_Edit">
-							<MenuItem Header="Copy">
 
-							</MenuItem>
-							<MenuItem Header="Paste">
+		<StackPanel Grid.Row="0" Background="#f5c1ea">
+			<Menu>
+				<MenuItem Header="_File">
+					<MenuItem Header="_Open..." Command="{Binding OpenCommand}"/>
+				</MenuItem>
+				<MenuItem Header="_Edit">
+					<MenuItem Header="Copy"/>
+					<MenuItem Header="Paste"/>
+				</MenuItem>
+			</Menu>
+		</StackPanel>
 
-							</MenuItem>
-						</MenuItem>
-					</Menu>
-				</StackPanel>
-
-
-			</Border>
-		</Grid>
+		<StackPanel x:Name="Menu" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
+			<Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
+			<Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
+		</StackPanel>
 	</Grid>
 </Window>
