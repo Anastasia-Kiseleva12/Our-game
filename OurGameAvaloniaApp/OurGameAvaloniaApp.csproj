@@ -13,6 +13,11 @@
     <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <None Remove="Assets\logo.ico" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.2" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.2" />

@@ -7,16 +7,18 @@
 		xmlns:GL ="using:Graphic"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="OurGameAvaloniaApp.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="OurGameAvaloniaApp"
-	    Background="#FFF0F5">
-	<Grid>
-		<StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
-			<Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
-			<Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
-			<Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
-		</StackPanel>
-		<!--<GL:OpenGLControl x:Name="glControl" IsVisible="False"/>-->
-		<!-- Скрываем OpenGLControl по умолчанию -->
-	</Grid>
+        Icon="/Assets/logo.ico"
+        Title="OurGameAvaloniaApp">
+   <Grid>
+   <Grid.Background>
+      <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
+   </Grid.Background>
+   <StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
+      <Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
+      <Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
+      <Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
+   </StackPanel>
+   <!--<GL:OpenGLControl x:Name="glControl" IsVisible="False"/>-->
+   <!-- Скрываем OpenGLControl по умолчанию -->
+   </Grid>
 </Window>

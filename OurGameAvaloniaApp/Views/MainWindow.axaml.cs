@@ -36,7 +36,7 @@ namespace OurGameAvaloniaApp.Views
 
                 var media = new Media(_libVLC, filePath, FromType.FromPath);
                 _mediaPlayer.Play(media);
-                _mediaPlayer.Volume = 30; // Установите громкость на 0%
+                _mediaPlayer.Volume = 70; // Установите громкость на 0%
             }
             catch (Exception ex)
             {
