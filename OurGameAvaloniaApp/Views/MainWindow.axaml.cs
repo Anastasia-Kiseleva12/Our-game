@@ -1,6 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
-using LibVLCSharp;
+using Graphic;
 using LibVLCSharp.Shared;
 using System;
 using System.Diagnostics;
@@ -23,6 +23,8 @@ namespace OurGameAvaloniaApp.Views
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Menu.IsVisible = false; // Скрыть меню
+
+            // Запуск музыки
             try
             {
                 var filePath = @"C:\Users\Ася\Desktop\Наша игра\Our-game\OurGameAvaloniaApp\Assets\music.mp3";
@@ -34,7 +36,7 @@ namespace OurGameAvaloniaApp.Views
 
                 var media = new Media(_libVLC, filePath, FromType.FromPath);
                 _mediaPlayer.Play(media);
-                _mediaPlayer.Volume = 70; // Установите громкость на 100%
+                _mediaPlayer.Volume = 0; // Установите громкость на 0%
             }
             catch (Exception ex)
             {
