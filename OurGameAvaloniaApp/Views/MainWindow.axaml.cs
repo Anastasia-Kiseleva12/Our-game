@@ -27,7 +27,7 @@ namespace OurGameAvaloniaApp.Views
             // Запуск музыки
             try
             {
-                var filePath = @"C:\Users\Ася\Desktop\Наша игра\Our-game\OurGameAvaloniaApp\Assets\music.mp3";
+                var filePath = @"..\..\..\..\OurGameAvaloniaApp\Assets\music.mp3";
                 if (!System.IO.File.Exists(filePath))
                 {
                     Debug.WriteLine("Файл не найден!");
@@ -36,7 +36,7 @@ namespace OurGameAvaloniaApp.Views
 
                 var media = new Media(_libVLC, filePath, FromType.FromPath);
                 _mediaPlayer.Play(media);
-                _mediaPlayer.Volume = 0; // Установите громкость на 0%
+                _mediaPlayer.Volume = 30; // Установите громкость на 0%
             }
             catch (Exception ex)
             {
