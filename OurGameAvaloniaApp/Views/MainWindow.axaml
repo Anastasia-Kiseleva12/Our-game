@@ -23,8 +23,4 @@
 		</StackPanel>
 		<Canvas x:Name="DrawingCanvas"/>
 	</Grid>
-   <Grid>
-   
-
-   </Grid>
 </Window>
