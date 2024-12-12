@@ -4,21 +4,27 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:OurGameAvaloniaApp.Views"
-		xmlns:GL ="using:Graphic"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="OurGameAvaloniaApp.Views.MainWindow"
         Icon="/Assets/logo.ico"
-        Title="OurGameAvaloniaApp">
-   <Grid>
-   <Grid.Background>
+        Title="OurGameAvaloniaApp"
+	    Background="#FFF0F5">
+	<Window.DataContext>
+		<vm:MainViewModel />
+	</Window.DataContext>
+	<Grid>
+      <Grid.Background>
       <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
-   </Grid.Background>
-   <StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
-      <Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
-      <Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
-      <Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
-   </StackPanel>
-   <!--<GL:OpenGLControl x:Name="glControl" IsVisible="False"/>-->
-   <!-- Скрываем OpenGLControl по умолчанию -->
+      </Grid.Background>
+		<StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
+			<Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
+			<Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
+			<Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
+		</StackPanel>
+		<Canvas x:Name="DrawingCanvas"/>
+	</Grid>
+   <Grid>
+   
+
    </Grid>
 </Window>
