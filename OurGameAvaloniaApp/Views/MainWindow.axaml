@@ -7,20 +7,38 @@
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="OurGameAvaloniaApp.Views.MainWindow"
         Icon="/Assets/logo.ico"
-        Title="safari time!"
-	    Background="#FFF0F5">
-	<Window.DataContext>
-		<vm:MainViewModel />
-	</Window.DataContext>
-	<Grid>
+        Title="safari time!">
+
+   <Window.DataContext>
+      <vm:MainViewModel />
+   </Window.DataContext>
+ 
+   <Window.Styles>
+      <Style Selector="Button">
+         <Setter Property="Foreground" Value="#BF8830" />
+         <Setter Property="BorderThickness" Value="2" />
+         <Setter Property="Background" Value="#99C6C6" />
+         <Setter Property="BorderBrush" Value="#FFFFFFFF" />
+         <Setter Property="HorizontalContentAlignment" Value="Center" />
+         <Setter Property="VerticalContentAlignment" Value="Center" />
+       
+      </Style>
+      <Style Selector="Button:hover">
+         <Setter Property="Background" Value="#FFB24D00" />
+         <!-- Непрозрачный цвет -->
+         <Setter Property="BorderBrush" Value="#FFB24D00" />
+         <!-- Непрозрачный цвет -->
+      </Style>
+   </Window.Styles>
+   <Grid>
       <Grid.Background>
-      <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
+         <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
       </Grid.Background>
-		<StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
-			<Button Content="Играть" Width="100" Margin="10" Click="PlayButton_Click"/>
-			<Button Content="Настройки" Width="100" Margin="10" Click="SettingsButton_Click"/>
-			<Button Content="Выйти" Width="100" Margin="10" Click="ExitButton_Click"/>
-		</StackPanel>
-		<Canvas x:Name="DrawingCanvas"/>
-	</Grid>
+      <StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
+         <Button Content="Играть" Width="200" Height="40" Margin="15" FontSize="20" Click="PlayButton_Click"/>
+         <Button Content="Настройки" Width="200" Height="40" Margin="15" FontSize="20" Click="SettingsButton_Click"/>
+         <Button Content="Выйти" Width="200" Height="40" Margin="15" FontSize="20" Click="ExitButton_Click"/>
+      </StackPanel>
+      <Canvas x:Name="DrawingCanvas"/>
+   </Grid>
 </Window>
