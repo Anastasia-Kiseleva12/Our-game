@@ -73,6 +73,18 @@ public class MainViewModel : ViewModelBase
             Ball.Velocity = new Vector2(Ball.Velocity.X, -Ball.Velocity.Y * BounceFactor); // Инвертируем скорость (отскок)
         }
 
+        // Проверка на столкновение с левыми и правыми границами
+        if (Ball.Position.X < Ball.Rad)
+        {
+            Ball.Position = new Vector2(Ball.Rad, Ball.Position.Y); // Устанавливаем на границу
+            Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Останавливаем движение влево
+        }
+        else if (Ball.Position.X > RoomWidth - Ball.Rad)
+        {
+            Ball.Position = new Vector2(RoomWidth - Ball.Rad, Ball.Position.Y); // Устанавливаем на границу
+            Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Останавливаем движение вправо
+        }
+
         // Обновляем время для следующего вызова
         starttime = DateTime.Now;
     }
@@ -148,5 +160,7 @@ public class MainViewModel : ViewModelBase
             }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => active));
 
         }
+
+
     
 }
