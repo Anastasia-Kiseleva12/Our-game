@@ -16,6 +16,7 @@
   
   <ItemGroup>
     <None Remove="Assets\logo.ico" />
+    <None Remove="Assets\сафари.png" />
   </ItemGroup>
 
   <ItemGroup>

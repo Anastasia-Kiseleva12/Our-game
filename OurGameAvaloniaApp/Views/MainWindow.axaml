@@ -15,10 +15,11 @@
  
    <Window.Styles>
       <Style Selector="Button">
-         <Setter Property="Foreground" Value="#BF8830" />
-         <Setter Property="BorderThickness" Value="2" />
-         <Setter Property="Background" Value="#99C6C6" />
-         <Setter Property="BorderBrush" Value="#FFFFFFFF" />
+         <Setter Property="Foreground" Value="#A94B26" />
+         <Setter Property="CornerRadius" Value="30" />
+         <Setter Property="BorderThickness" Value="3" />
+         <Setter Property="Background" Value="#B0E0E6" />
+         <Setter Property="BorderBrush" Value="#A94B26" />
          <Setter Property="HorizontalContentAlignment" Value="Center" />
          <Setter Property="VerticalContentAlignment" Value="Center" />
        
@@ -33,12 +34,17 @@
    <Grid>
       <Grid.Background>
          <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
-      </Grid.Background>
+      </Grid.Background>  
+   <Grid>
       <StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
-         <Button Content="Играть" Width="200" Height="40" Margin="15" FontSize="20" Click="PlayButton_Click"/>
-         <Button Content="Настройки" Width="200" Height="40" Margin="15" FontSize="20" Click="SettingsButton_Click"/>
-         <Button Content="Выйти" Width="200" Height="40" Margin="15" FontSize="20" Click="ExitButton_Click"/>
+         <Image Source="/Assets/сафари.png"
+               Width="340" Height="250"
+               HorizontalAlignment="Center" />
+         <Button Content="Играть" Width="300" Height="50" Margin="15" FontSize="23" Click="PlayButton_Click"/>
+         <Button Content="Настройки" Width="300" Height="50" Margin="15" FontSize="23"  Click="SettingsButton_Click"/>
+         <Button Content="Выйти" Width="300" Height="50" Margin="15" FontSize="23"  Click="ExitButton_Click"/>
       </StackPanel>
+   </Grid>
       <Canvas x:Name="DrawingCanvas"/>
    </Grid>
 </Window>
