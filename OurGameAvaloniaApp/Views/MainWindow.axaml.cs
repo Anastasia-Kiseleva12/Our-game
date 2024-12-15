@@ -13,6 +13,7 @@ using System.Numerics;
 using Avalonia.Media.Imaging;
 using Avalonia;
 using Avalonia.Controls.Shapes;
+using Avalonia.Controls.Primitives;
 
 namespace OurGameAvaloniaApp.Views
 {
@@ -31,13 +32,7 @@ namespace OurGameAvaloniaApp.Views
             _viewModel = (MainViewModel)DataContext;
 
             _viewModel.GenerateScene.ObserveOn(RxApp.MainThreadScheduler).Subscribe(Redraw);
-        }
 
-        private void PlayButton_Click(object sender, RoutedEventArgs e)
-        {
-            Menu.IsVisible = false; // Скрыть меню
-
-            // Запуск музыки
             try
             {
                 var filePath = @"Resources\music.mp3";
@@ -49,17 +44,41 @@ namespace OurGameAvaloniaApp.Views
 
                 var media = new Media(_libVLC, filePath, FromType.FromPath);
                 _mediaPlayer.Play(media);
-                _mediaPlayer.Volume = 40; // Установите громкость на 0%
+                
+                VolumeSlider.Value = _mediaPlayer.Volume; // Установите значение слайдера в соответствии с громкостью
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
+        }
+
+        private void PlayButton_Click(object sender, RoutedEventArgs e)
+        {
+            Menu.IsVisible = false; // Скрыть меню
             _viewModel.Start.Execute(Unit.Default);
         }
+
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
-            // Логика для открытия настроек
+            Menu.IsVisible = false;
+            SettingsPanel.IsVisible = true;
+        }
+
+        private void BackButton_Click(object sender, RoutedEventArgs e)
+        {
+            SettingsPanel.IsVisible = false;
+            Menu.IsVisible = true;
+        }
+
+        private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            if (_mediaPlayer != null)
+            {
+                double volume = e.NewValue; // Получить новое значение громкости
+                _mediaPlayer.Volume = (int)volume; // Установите громкость в медиаплеере
+                Console.WriteLine($"Громкость установлена на: {volume}");
+            }
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
@@ -67,6 +86,22 @@ namespace OurGameAvaloniaApp.Views
             this.Close(); // Закрытие приложения
         }
 
+        private void WindowSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (WindowSizeComboBox.SelectedItem is ComboBoxItem selectedItem)
+            {
+                string size = selectedItem.Content.ToString();
+                string[] dimensions = size.Split('x');
+
+                if (dimensions.Length == 2 &&
+                    int.TryParse(dimensions[0], out int width) &&
+                    int.TryParse(dimensions[1], out int height))
+                {
+                    this.Width = width;
+                    this.Height = height;
+                }
+            }
+        }
 
         private void Redraw(long tick)
         {
