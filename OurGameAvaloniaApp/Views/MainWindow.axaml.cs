@@ -14,6 +14,7 @@ using Avalonia.Media.Imaging;
 using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 
 namespace OurGameAvaloniaApp.Views
 {
@@ -27,6 +28,7 @@ namespace OurGameAvaloniaApp.Views
         {
             InitializeComponent();
             Core.Initialize();
+           
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
             _viewModel = (MainViewModel)DataContext;

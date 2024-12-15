@@ -22,13 +22,12 @@
          <Setter Property="BorderBrush" Value="#A94B26" />
          <Setter Property="HorizontalContentAlignment" Value="Center" />
          <Setter Property="VerticalContentAlignment" Value="Center" />
-       
       </Style>
+
+      <!-- почему то хувер не работает -->
       <Style Selector="Button:hover">
          <Setter Property="Background" Value="#FFB24D00" />
-         <!-- Непрозрачный цвет -->
          <Setter Property="BorderBrush" Value="#FFB24D00" />
-         <!-- Непрозрачный цвет -->
       </Style>
    </Window.Styles>
    <Grid>
@@ -43,19 +42,19 @@
          <Button Content="Exit" Width="300" Height="50" Margin="15" FontSize="23" FontFamily="{StaticResource FreckleFaceFont}" Click="ExitButton_Click"/>
       </StackPanel>
       <StackPanel x:Name="SettingsPanel" IsVisible="false" VerticalAlignment="Center" HorizontalAlignment="Center">
-         <TextBlock Text="Настройки" FontSize="24" HorizontalAlignment="Center" />
-
-         <TextBlock Text="Регулятор громкости" Margin="0,20,0,10" />
-         <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged" />
-            <TextBlock Text="Выберите размер окна:" Margin="0,20,0,5" HorizontalAlignment="Center" />
-               <ComboBox x:Name="WindowSizeComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,0,0,10" SelectionChanged="WindowSizeComboBox_SelectionChanged">
-               <ComboBoxItem Content="800x600"/>
-               <ComboBoxItem Content="1024x768"/>
+            <TextBlock Text="Settings" FontSize="45" HorizontalAlignment="Center" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
+            <TextBlock Text="Volume" Margin="0,30,0,0" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
+            <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged"/>
+            <TextBlock Text="Window size" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
+            <ComboBox x:Name="WindowSizeComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,20" SelectionChanged="WindowSizeComboBox_SelectionChanged">
+               <ComboBoxItem Content="800x600" />
+               <ComboBoxItem Content="1024x768" />
                <ComboBoxItem Content="1280x720"/>
                <ComboBoxItem Content="1920x1080"/>
-               </ComboBox>
-    <Button Content="Назад" Margin="0,20,0,0" Click="BackButton_Click" />
-</StackPanel>
+            </ComboBox>
+            <Button Content="Back" Width="150" Height="50" Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="24" FontFamily="{StaticResource FreckleFaceFont}" Click="BackButton_Click" />
+             
+      </StackPanel>
    </Grid>
       <Canvas x:Name="DrawingCanvas"/>
    </Grid>
