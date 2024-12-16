@@ -20,6 +20,7 @@ namespace OurGameAvaloniaApp.Views
 {
     public partial class MainWindow : Window
     {
+        private Ellipse ballEllipse;
         private MediaPlayer _mediaPlayer;
         private LibVLC _libVLC;
         private MainViewModel _viewModel;
@@ -28,13 +29,18 @@ namespace OurGameAvaloniaApp.Views
         {
             InitializeComponent();
             Core.Initialize();
-           
+            this.Focus();
             _libVLC = new LibVLC();
             _mediaPlayer = new MediaPlayer(_libVLC);
             _viewModel = (MainViewModel)DataContext;
 
-            _viewModel.GenerateScene.ObserveOn(RxApp.MainThreadScheduler).Subscribe(Redraw);
+            _viewModel.GenerateScene
+           .ObserveOn(RxApp.MainThreadScheduler)  // Обновление UI в главном потоке
+           .Subscribe(Redraw);
+            this.KeyDown += Window_KeyDown;
+            this.KeyUp += Window_KeyUp;
 
+            this.Opened += OnWindowOpened;
             try
             {
                 var filePath = @"Resources\music.mp3";
@@ -54,10 +60,51 @@ namespace OurGameAvaloniaApp.Views
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
         }
+        private void OnWindowOpened(object sender, EventArgs e)
+        {
+            // Теперь размеры окна доступны
+            _viewModel.WindowHeight = Convert.ToInt32(this.Height);
+            _viewModel.WindowWidth = Convert.ToInt32(this.Width);
+        }
+        private void Window_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+        {
+            if (e.Key == Avalonia.Input.Key.Space)
+            {
+                Debug.WriteLine("Space key pressed");
+                ((MainViewModel)this.DataContext).Jump.Execute().Subscribe();
+            }
+            else if (e.Key == Avalonia.Input.Key.A)
+            {
+                Debug.WriteLine("A key pressed");
+                _viewModel.MoveLeft.Execute(Unit.Default);
+            }
+            else if (e.Key == Avalonia.Input.Key.D)
+            {
+                Debug.WriteLine("D key pressed");
+                _viewModel.MoveRight.Execute(Unit.Default);
+            }
+        }
+
+        private void Window_KeyUp(object sender, Avalonia.Input.KeyEventArgs e)
+        {
+            if (e.Key == Avalonia.Input.Key.A)
+            {
+                Debug.WriteLine("A key pressed");
+                _viewModel.StopMoving.Execute(Unit.Default);
+            }
+            else if (e.Key == Avalonia.Input.Key.D)
+            {
+                Debug.WriteLine("D key pressed");
+                _viewModel.StopMoving.Execute(Unit.Default);
+            }
+        }
+
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
             Menu.IsVisible = false; // Скрыть меню
+            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
+            var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             _viewModel.Start.Execute(Unit.Default);
         }
 
@@ -102,60 +149,40 @@ namespace OurGameAvaloniaApp.Views
                     this.Width = width;
                     this.Height = height;
                 }
+                
             }
+            _viewModel.WindowHeight = Convert.ToInt32(this.Height);
+            _viewModel.WindowWidth = Convert.ToInt32(this.Width);
         }
 
         private void Redraw(long tick)
         {
-            Debug.WriteLine("Redraw called");
             if (_viewModel.Ball != null)
             {
-                // Получаем размеры окна
-                var width = (int)this.ClientSize.Width;
-                var height = (int)this.ClientSize.Height;
+                var canvasWidth = (float)DrawingCanvas.Bounds.Width;
+                var canvasHeight = (float)DrawingCanvas.Bounds.Height;
 
-                // Устанавливаем позицию шарика так, чтобы его нижняя граница была на уровне "пола"
-                float ballYPosition = height - _viewModel.Ball.Rad; // Устанавливаем Y так, чтобы нижняя граница шарика была на "полу"
-                _viewModel.Ball.Position = new Vector2((float)(width / 2), ballYPosition); // Центрируем по X
-
-                // Проверка значений
-                Debug.WriteLine($"Ball Position: ({_viewModel.Ball.Position.X}, {_viewModel.Ball.Position.Y}), Radius: {_viewModel.Ball.Rad}");
-
-                var centerX = _viewModel.Ball.Position.X;
-                var centerY = _viewModel.Ball.Position.Y; // Инвертируем Y для отрисовки
-
-                // Очищаем Canvas перед отрисовкой
-                DrawingCanvas.Children.Clear();
-
-                // Рисуем шарик
-                var ballEllipse = new Ellipse
+                // Если ballEllipse еще не создан, создаем его
+                if (ballEllipse == null)
                 {
-                    Fill = Brushes.Cyan,
-                    Width = _viewModel.Ball.Rad * 2,
-                    Height = _viewModel.Ball.Rad * 2
-                };
+                    ballEllipse = new Ellipse
+                    {
+                        Fill = Brushes.Cyan,
+                        Width = _viewModel.Ball.Rad * 2,
+                        Height = _viewModel.Ball.Rad * 2
+                    };
+                    DrawingCanvas.Children.Add(ballEllipse); // Добавляем его в холст
+                }
 
-                // Устанавливаем позицию шарика
-                Canvas.SetLeft(ballEllipse, centerX - _viewModel.Ball.Rad);
-                Canvas.SetTop(ballEllipse, centerY - _viewModel.Ball.Rad);
-                DrawingCanvas.Children.Add(ballEllipse);
+                // Логируем координаты для отладки
+                Debug.WriteLine($"Ball position after move in Redraw: {_viewModel.Ball.Position.X}, {_viewModel.Ball.Position.Y}");
 
-                // Рисуем нижнюю границу (землю)
-                var groundHeight = 10; // Высота земли
-                var groundRectangle = new Rectangle
-                {
-                    Fill = Brushes.Brown,
-                    Width = width,
-                    Height = groundHeight
-                };
-
-                Canvas.SetLeft(groundRectangle, 0);
-                Canvas.SetTop(groundRectangle, height - groundHeight);
-                DrawingCanvas.Children.Add(groundRectangle);
-
-                // Обновляем модель
-                _viewModel.Recalculate(tick);
+                // Обновляем положение шарика
+                Canvas.SetLeft(ballEllipse, _viewModel.Ball.Position.X - _viewModel.Ball.Rad);
+                Canvas.SetTop(ballEllipse, canvasHeight - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad);
             }
         }
+
+
     }
 }
