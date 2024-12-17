@@ -24,6 +24,8 @@ namespace OurGameAvaloniaApp.Views
         private MediaPlayer _mediaPlayer;
         private LibVLC _libVLC;
         private MainViewModel _viewModel;
+        private Rectangle groundRectangle;
+
 
         public MainWindow()
         {
@@ -68,34 +70,33 @@ namespace OurGameAvaloniaApp.Views
         }
         private void Window_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
         {
-            if (e.Key == Avalonia.Input.Key.Space)
+            if (e.Key == Avalonia.Input.Key.W)
             {
-                Debug.WriteLine("Space key pressed");
-                ((MainViewModel)this.DataContext).Jump.Execute().Subscribe();
+                Debug.WriteLine("W key pressed");
+                _viewModel.IsJumping = true;
             }
             else if (e.Key == Avalonia.Input.Key.A)
             {
                 Debug.WriteLine("A key pressed");
-                _viewModel.MoveLeft.Execute(Unit.Default);
+                //_viewModel.MoveLeft.Execute(Unit.Default);
+                _viewModel.IsMoveL = true;
+                _viewModel.IsMoveR = false;
             }
             else if (e.Key == Avalonia.Input.Key.D)
             {
                 Debug.WriteLine("D key pressed");
-                _viewModel.MoveRight.Execute(Unit.Default);
+                //_viewModel.MoveRight.Execute(Unit.Default);
+                _viewModel.IsMoveL = false;
+                _viewModel.IsMoveR = true;
             }
         }
 
         private void Window_KeyUp(object sender, Avalonia.Input.KeyEventArgs e)
         {
-            if (e.Key == Avalonia.Input.Key.A)
+            if (e.Key == Avalonia.Input.Key.A || e.Key == Avalonia.Input.Key.D)
             {
-                Debug.WriteLine("A key pressed");
-                _viewModel.StopMoving.Execute(Unit.Default);
-            }
-            else if (e.Key == Avalonia.Input.Key.D)
-            {
-                Debug.WriteLine("D key pressed");
-                _viewModel.StopMoving.Execute(Unit.Default);
+                _viewModel.IsMoveL = false;
+                _viewModel.IsMoveR = false;
             }
         }
 
@@ -162,7 +163,10 @@ namespace OurGameAvaloniaApp.Views
                 var canvasWidth = (float)DrawingCanvas.Bounds.Width;
                 var canvasHeight = (float)DrawingCanvas.Bounds.Height;
 
-                // Если ballEllipse еще не создан, создаем его
+                // Уровень земли и её толщина
+                const float groundThickness = 10; // Толщина земли
+                float groundLevel = canvasHeight - groundThickness; // Уровень земли (нижняя граница)
+
                 if (ballEllipse == null)
                 {
                     ballEllipse = new Ellipse
@@ -171,15 +175,30 @@ namespace OurGameAvaloniaApp.Views
                         Width = _viewModel.Ball.Rad * 2,
                         Height = _viewModel.Ball.Rad * 2
                     };
-                    DrawingCanvas.Children.Add(ballEllipse); // Добавляем его в холст
+                    DrawingCanvas.Children.Add(ballEllipse);
                 }
 
-                // Логируем координаты для отладки
+                if (groundRectangle == null)
+                {
+                    groundRectangle = new Rectangle
+                    {
+                        Fill = Brushes.Brown,
+                        Width = canvasWidth,
+                        Height = groundThickness
+                    };
+                    DrawingCanvas.Children.Add(groundRectangle);
+                }
+
+                // Логируем текущие координаты для отладки
                 Debug.WriteLine($"Ball position after move in Redraw: {_viewModel.Ball.Position.X}, {_viewModel.Ball.Position.Y}");
 
-                // Обновляем положение шарика
                 Canvas.SetLeft(ballEllipse, _viewModel.Ball.Position.X - _viewModel.Ball.Rad);
-                Canvas.SetTop(ballEllipse, canvasHeight - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad);
+                Canvas.SetTop(ballEllipse, groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad);
+
+                Canvas.SetLeft(groundRectangle, 0);
+                Canvas.SetTop(groundRectangle, groundLevel);
+
+                Debug.WriteLine($"Ground position: {groundLevel}, Ball position: {_viewModel.Ball.Position.Y}");
             }
         }
 
