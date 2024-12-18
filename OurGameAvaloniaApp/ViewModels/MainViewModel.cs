@@ -238,9 +238,9 @@ public class MainViewModel : ViewModelBase
             // Шарик достигает земли
             newPosition = new Vector2(newPosition.X, groundLevel + Ball.Rad);
 
-            if (Math.Abs(newVelocity.Y) > 300) // Если скорость выше порога
+            if (Math.Abs(newVelocity.Y) > 350) // Если скорость выше порога
             {
-                const float bounceFactor = 0.6f; // Коэффициент упругости 
+                const float bounceFactor = 0.3f; // Коэффициент упругости 
                 newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor); // Создаём отскок
                 isOnGround = false;
             }
@@ -256,11 +256,12 @@ public class MainViewModel : ViewModelBase
         }
 
         // Обработка прыжка
-        if (IsJumping && isOnGround || isOnPlatform)
+        if (IsJumping && isOnGround || isOnPlatform && IsJumping)
         {
             newVelocity = new Vector2(newVelocity.X, jumpForce);
             isOnGround = false;
             IsJumping = false;
+            isOnPlatform = false;
         }
 
         // Проверка столкновения с левой и правой границей
@@ -295,13 +296,18 @@ public class MainViewModel : ViewModelBase
             var RightUppPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y + platform.Height);
             var LeftDownPoint = new Vector2(platform.Position.X, platform.Position.Y);
             var RightDownPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y);
-            // Проверка столкновения с платформой
-            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X && newPosition.Y - Ball.Rad <= platform.Position.Y + platform.Height)                 
+            // Проверка столкновения с платформой верхней границей
+            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X && newPosition.Y - Ball.Rad <= platform.Position.Y + platform.Height && newPosition.Y - Ball.Rad > platform.Position.Y - platform.Height )                 
             {
                 // Шарик касается платформы
                 newPosition = new Vector2(newPosition.X, platform.Position.Y + Ball.Rad + platform.Height); // Устанавливаем мяч на платформу
                 newVelocity = new Vector2(newVelocity.X, 0); // Останавливаем вертикальную скорость
                 isOnPlatform = true; // Шарик стоит на платформе
+            }
+            //Столкновение с нижней границей
+            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X && newPosition.Y + Ball.Rad < platform.Position.Y && newPosition.Y + Ball.Rad >= platform.Position.Y - 7)
+            {
+                newVelocity = new Vector2(newVelocity.X, -100);  // Отскок (умножаем вертикальную скорость на коэффициент отскока)
             }
 
         }
@@ -327,12 +333,37 @@ public class MainViewModel : ViewModelBase
         {
             Platforms = new List<Platform>
         {
-            new Platform { Position = new Vector2(712, 70), Velocity = Vector2.Zero , Height = 20 , Width = 300},
+            new Platform { Position = new Vector2(412, 70), Velocity = Vector2.Zero , Height = 20 , Width = 300},
         },
-            Coin = new Coin { Position = new Vector2(820, 60), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(750, 0), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(450, 100), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(950, 0), Width = 50, Heigth = 50 }
         };
+        var level2 = new Level
+        {
+            Platforms = new List<Platform>
+        {
+            new Platform { Position = new Vector2(50, 400), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(300, 150), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
+        },
+            Coin = new Coin { Position = new Vector2(150, 350), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(600, 50), Width = 50, Heigth = 50 }
+        };
+        var level3 = new Level
+        {
+            Platforms = new List<Platform>
+        {
+            new Platform { Position = new Vector2(50, 50), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(150, 200), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(250, 400), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
+        },
+            Coin = new Coin { Position = new Vector2(150, 250), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(60, 70), Width = 50, Heigth = 50 }
+        };
+
         LevelManager.AddLevel(level1);
+        LevelManager.AddLevel(level2);
+        LevelManager.AddLevel(level3);
+
 
         // Убедитесь, что текущий уровень задан
         Level = LevelManager.CurrentLevel;
@@ -372,6 +403,19 @@ public class MainViewModel : ViewModelBase
                     {
                         UpdateMovement(0);
                         ApplyPhysics(0);
+                        if (levelManager.IsLevelComplete(Ball))
+                        {
+                            if (levelManager.LoadNextLevel())
+                            {
+                                Level = levelManager.CurrentLevel; // Обновляем текущий уровень
+                                Ball.Position = new Vector2(712, 20); // Сбрасываем позицию шарика
+                                Ball.Velocity = Vector2.Zero; // Сбрасываем скорость шарика
+                            }
+                            else
+                            {
+                                GameActive = false; // Конец игры
+                            }
+                        }
                         GenerateScene.OnNext(0);
 
                     });

@@ -182,7 +182,7 @@ namespace OurGameAvaloniaApp.Views
                 {
                     Fill = Brushes.Gray,
                     Width = platform.Width,  
-                    Height = platform.Height
+                    Height = platform.Height + 7
                 };
 
                 // Добавляем платформу в Canvas
