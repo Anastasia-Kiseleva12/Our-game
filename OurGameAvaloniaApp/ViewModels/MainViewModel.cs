@@ -296,7 +296,7 @@ public class MainViewModel : ViewModelBase
             var LeftDownPoint = new Vector2(platform.Position.X, platform.Position.Y);
             var RightDownPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y);
             // Проверка столкновения с платформой
-            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X /*&& newPosition.Y - Ball.Rad == platform.Position.Y + platform.Height*/)                 
+            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X && newPosition.Y - Ball.Rad <= platform.Position.Y + platform.Height)                 
             {
                 // Шарик касается платформы
                 newPosition = new Vector2(newPosition.X, platform.Position.Y + Ball.Rad + platform.Height); // Устанавливаем мяч на платформу
