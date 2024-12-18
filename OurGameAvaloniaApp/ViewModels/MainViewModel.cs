@@ -119,7 +119,13 @@ public class MainViewModel : ViewModelBase
     public float BallMass { get => ballMass; set => this.RaiseAndSetIfChanged(ref ballMass, value); }
     float ballRad = 20;
     public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
-   
+
+    //float plheight = 20;
+    //public float Plheight { get => plheight; set => this.RaiseAndSetIfChanged(ref plheight, value); }
+
+    //float plHeight = 100;
+    //public float PlHeight { get => plHeight; set => this.RaiseAndSetIfChanged(ref plHeight, value); }
+
     public ReactiveCommand<Unit, Unit> CreateGame { get; }
     bool gameActive;
     public bool GameActive { get => gameActive; set => this.RaiseAndSetIfChanged(ref gameActive, value); }
@@ -250,7 +256,7 @@ public class MainViewModel : ViewModelBase
         }
 
         // Обработка прыжка
-        if (IsJumping && isOnGround)
+        if (IsJumping && isOnGround || isOnPlatform)
         {
             newVelocity = new Vector2(newVelocity.X, jumpForce);
             isOnGround = false;
@@ -280,20 +286,20 @@ public class MainViewModel : ViewModelBase
 
         //Debug.WriteLine($"Position: {Ball.Position}, Velocity: {Ball.Velocity}, isOnGround: {isOnGround}, IsJumping: {IsJumping}");
     }
-    private void HandleCollisions(ref Vector2 newPosition, ref Vector2 newVelocity, ref bool isOnPlatform, ref bool isOnGround, float dt)
+    private bool HandleCollisions(ref Vector2 newPosition, ref Vector2 newVelocity, ref bool isOnPlatform, ref bool isOnGround, float dt)
     {
         // Столкновение с платформами
         foreach (var platform in Level.Platforms)
         {
-            var LeftUppPoint = new Vector2(platform.Position.X, platform.Position.Y);
-            var RightUppPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y);
-            var LeftDownPoint = new Vector2(platform.Position.X, platform.Position.Y - platform.Height);
-            var RightDownPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y - platform.Height);
+            var LeftUppPoint = new Vector2(platform.Position.X, platform.Position.Y + platform.Height);
+            var RightUppPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y + platform.Height);
+            var LeftDownPoint = new Vector2(platform.Position.X, platform.Position.Y);
+            var RightDownPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y);
             // Проверка столкновения с платформой
-            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X + Ball.Rad < RightUppPoint.X && newPosition.Y - Ball.Rad >= platform.Position.Y)            // Если шарик слева от платформы             
+            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X - Ball.Rad < RightUppPoint.X /*&& newPosition.Y - Ball.Rad == platform.Position.Y + platform.Height*/)                 
             {
                 // Шарик касается платформы
-                newPosition = new Vector2(newPosition.X, platform.Position.Y + Ball.Rad); // Устанавливаем мяч на платформу
+                newPosition = new Vector2(newPosition.X, platform.Position.Y + Ball.Rad + platform.Height); // Устанавливаем мяч на платформу
                 newVelocity = new Vector2(newVelocity.X, 0); // Останавливаем вертикальную скорость
                 isOnPlatform = true; // Шарик стоит на платформе
             }
@@ -309,6 +315,7 @@ public class MainViewModel : ViewModelBase
                 Level.Coin = null; // Монетка исчезает
             }
         }
+        return isOnPlatform;
     }
     public MainViewModel()
         {
@@ -320,7 +327,7 @@ public class MainViewModel : ViewModelBase
         {
             Platforms = new List<Platform>
         {
-            new Platform { Position = new Vector2(712, 50), Velocity = Vector2.Zero , Height = 20 , Width = 50},
+            new Platform { Position = new Vector2(712, 70), Velocity = Vector2.Zero , Height = 20 , Width = 300},
         },
             Coin = new Coin { Position = new Vector2(820, 60), Rad = 20 },
             Portal = new Portal { Position = new Vector2(750, 0), Width = 50, Heigth = 50 }
@@ -363,8 +370,8 @@ public class MainViewModel : ViewModelBase
                     .TakeUntil(this.WhenAnyValue(t => t.GameActive).Where(act => !act))
                     .Subscribe(_ =>
                     {
-                        UpdateMovement(0); 
-                        ApplyPhysics(0);  
+                        UpdateMovement(0);
+                        ApplyPhysics(0);
                         GenerateScene.OnNext(0);
 
                     });

@@ -165,7 +165,7 @@ namespace OurGameAvaloniaApp.Views
             DrawingCanvas.Children.Clear();
 
             var currentLevel = _viewModel.LevelManager.CurrentLevel;
-
+            //var pl = _viewModel.P
             // Получаем размеры Canvas
             var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
@@ -177,16 +177,20 @@ namespace OurGameAvaloniaApp.Views
             // Отрисовка платформ
             foreach (var platform in currentLevel.Platforms)
             {
+                // Создаем прямоугольник для каждой платформы
                 var platformRectangle = new Rectangle
                 {
                     Fill = Brushes.Gray,
-                    Width = 50,
-                    Height = 20
+                    Width = platform.Width,  
+                    Height = platform.Height
                 };
+
+                // Добавляем платформу в Canvas
                 DrawingCanvas.Children.Add(platformRectangle);
-                // Отображаем платформы с учетом земли
+
+                // Отображаем платформу с учетом земли
                 Canvas.SetLeft(platformRectangle, platform.Position.X);
-                Canvas.SetTop(platformRectangle, groundLevel - platform.Position.Y - 20);
+                Canvas.SetTop(platformRectangle, groundLevel - platform.Position.Y - platform.Height);
             }
 
             // Отрисовка монеты
