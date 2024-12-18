@@ -21,6 +21,9 @@ namespace OurGameAvaloniaApp.Views
     public partial class MainWindow : Window
     {
         private Ellipse ballEllipse;
+        private Platform platform;
+        private Coin coin;
+        private Portal portal;
         private MediaPlayer _mediaPlayer;
         private LibVLC _libVLC;
         private MainViewModel _viewModel;
@@ -158,47 +161,98 @@ namespace OurGameAvaloniaApp.Views
 
         private void Redraw(long tick)
         {
+            // Очистим Canvas перед отрисовкой
+            DrawingCanvas.Children.Clear();
+
+            var currentLevel = _viewModel.LevelManager.CurrentLevel;
+
+            // Получаем размеры Canvas
+            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
+            var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+
+            // Уровень земли и её толщина
+            const float groundThickness = 10; // Толщина земли
+            float groundLevel = canvasHeight - groundThickness; // Уровень земли (нижняя граница)
+
+            // Отрисовка платформ
+            foreach (var platform in currentLevel.Platforms)
+            {
+                var platformRectangle = new Rectangle
+                {
+                    Fill = Brushes.Gray,
+                    Width = 50,
+                    Height = 20
+                };
+                DrawingCanvas.Children.Add(platformRectangle);
+                // Отображаем платформы с учетом земли
+                Canvas.SetLeft(platformRectangle, platform.Position.X);
+                Canvas.SetTop(platformRectangle, groundLevel - platform.Position.Y - 20);
+            }
+
+            // Отрисовка монеты
+            if (currentLevel.Coin != null)
+            {
+                var coinEllipse = new Ellipse
+                {
+                    Fill = Brushes.Gold,
+                    Width = currentLevel.Coin.Rad * 2,
+                    Height = currentLevel.Coin.Rad * 2
+                };
+                DrawingCanvas.Children.Add(coinEllipse);
+                // Отображаем монету с учетом земли
+                Canvas.SetLeft(coinEllipse, currentLevel.Coin.Position.X - currentLevel.Coin.Rad);
+                Canvas.SetTop(coinEllipse, groundLevel - currentLevel.Coin.Position.Y - currentLevel.Coin.Rad);
+            }
+
+            // Отрисовка портала
+            var portalRectangle = new Rectangle
+            {
+                Fill = Brushes.Purple,
+                Width = currentLevel.Portal.Width,
+                Height = currentLevel.Portal.Heigth
+            };
+            DrawingCanvas.Children.Add(portalRectangle);
+
+            // Корректируем положение портала относительно земли
+            Canvas.SetLeft(portalRectangle, currentLevel.Portal.Position.X);
+            Canvas.SetTop(portalRectangle, groundLevel - currentLevel.Portal.Position.Y - currentLevel.Portal.Heigth);
+
+
+            // Отрисовка земли
+            var groundRectangle = new Rectangle
+            {
+                Fill = Brushes.Brown,
+                Width = canvasWidth,
+                Height = groundThickness
+            };
+            DrawingCanvas.Children.Add(groundRectangle);
+            Canvas.SetLeft(groundRectangle, 0);
+            Canvas.SetTop(groundRectangle, groundLevel);
+
+            // Отрисовка шарика
             if (_viewModel.Ball != null)
             {
-                var canvasWidth = (float)DrawingCanvas.Bounds.Width;
-                var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+                // Переворачиваем ось Y для шарика
+                float ballCanvasY = groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad;
 
-                // Уровень земли и её толщина
-                const float groundThickness = 10; // Толщина земли
-                float groundLevel = canvasHeight - groundThickness; // Уровень земли (нижняя граница)
+                // Ограничиваем положение шарика
+                ballCanvasY = Math.Clamp(ballCanvasY, 0, canvasHeight - 2 * _viewModel.Ball.Rad);
+                float ballCanvasX = Math.Clamp(_viewModel.Ball.Position.X - _viewModel.Ball.Rad, 0, canvasWidth - 2 * _viewModel.Ball.Rad);
 
-                if (ballEllipse == null)
+                var ballEllipse = new Ellipse
                 {
-                    ballEllipse = new Ellipse
-                    {
-                        Fill = Brushes.Cyan,
-                        Width = _viewModel.Ball.Rad * 2,
-                        Height = _viewModel.Ball.Rad * 2
-                    };
-                    DrawingCanvas.Children.Add(ballEllipse);
-                }
+                    Fill = Brushes.Cyan,
+                    Width = _viewModel.Ball.Rad * 2,
+                    Height = _viewModel.Ball.Rad * 2
+                };
+                DrawingCanvas.Children.Add(ballEllipse);
+                Canvas.SetLeft(ballEllipse, ballCanvasX);
+                Canvas.SetTop(ballEllipse, ballCanvasY);
 
-                if (groundRectangle == null)
-                {
-                    groundRectangle = new Rectangle
-                    {
-                        Fill = Brushes.Brown,
-                        Width = canvasWidth,
-                        Height = groundThickness
-                    };
-                    DrawingCanvas.Children.Add(groundRectangle);
-                }
-
-                // Логируем текущие координаты для отладки
-                Debug.WriteLine($"Ball position after move in Redraw: {_viewModel.Ball.Position.X}, {_viewModel.Ball.Position.Y}");
-
-                Canvas.SetLeft(ballEllipse, _viewModel.Ball.Position.X - _viewModel.Ball.Rad);
-                Canvas.SetTop(ballEllipse, groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad);
-
-                Canvas.SetLeft(groundRectangle, 0);
-                Canvas.SetTop(groundRectangle, groundLevel);
-
-                Debug.WriteLine($"Ground position: {groundLevel}, Ball position: {_viewModel.Ball.Position.Y}");
+                // Логирование для отладки
+                Debug.WriteLine($"Canvas Dimensions: {canvasWidth}x{canvasHeight}");
+                Debug.WriteLine($"Ground: {groundLevel}");
+                Debug.WriteLine($"Ball position: X={_viewModel.Ball.Position.X}, Y={_viewModel.Ball.Position.Y}");
             }
         }
 

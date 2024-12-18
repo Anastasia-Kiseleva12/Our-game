@@ -11,6 +11,8 @@ using System.Diagnostics;
 using Avalonia.Input;
 using System.Net.Sockets;
 using LibVLCSharp.Shared;
+using System.Collections.Generic;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -45,58 +47,109 @@ public class Platform : ReactiveObject
 
    Vector2 velocity;
    public Vector2 Velocity { get => velocity; set => this.RaiseAndSetIfChanged(ref velocity, value); }
+
+    public required float Height { get; init; }
+    public required float Width { get; init; }
 }
+public class Level : ReactiveObject
+{
+    public List<Platform> Platforms { get; set; } = new();
+    public Coin Coin { get; set; }
+    public Portal Portal { get; set; }
+}
+public class LevelManager : ReactiveObject
+{
+    private List<Level> levels = new();
+    private int currentLevelIndex = 0;
+
+    public Level CurrentLevel => levels[currentLevelIndex];
+
+    public void AddLevel(Level level)
+    {
+        levels.Add(level);
+    }
+
+    public bool IsLevelComplete(Ball ball)
+    {
+        // Проверяем, собрана ли монетка
+        if (CurrentLevel.Coin != null &&
+            Vector2.Distance(ball.Position, CurrentLevel.Coin.Position) <= CurrentLevel.Coin.Rad + ball.Rad)
+        {
+            CurrentLevel.Coin = null; // Монетка собрана
+        }
+
+        // Проверяем, находится ли шарик в портале
+        if (CurrentLevel.Coin == null &&
+            ball.Position.X >= CurrentLevel.Portal.Position.X &&
+            ball.Position.X <= CurrentLevel.Portal.Position.X + CurrentLevel.Portal.Width &&
+            ball.Position.Y >= CurrentLevel.Portal.Position.Y &&
+            ball.Position.Y <= CurrentLevel.Portal.Position.Y + CurrentLevel.Portal.Heigth)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool LoadNextLevel()
+    {
+        if (currentLevelIndex + 1 < levels.Count)
+        {
+            currentLevelIndex++;
+            return true;
+        }
+        return false; // Нет больше уровней
+    }
+}
+
 public class MainViewModel : ViewModelBase
 {
-        Ball ball;
-        public Ball Ball { get => ball; set => this.RaiseAndSetIfChanged(ref ball, value); }
+    Ball ball;
+    public Ball Ball { get => ball; set => this.RaiseAndSetIfChanged(ref ball, value); }
 
-        public DrawingImage Screen { get; } = new DrawingImage();
+    LevelManager levelManager;
+    public LevelManager LevelManager { get => levelManager; set => this.RaiseAndSetIfChanged(ref levelManager, value); }
 
-        public ReactiveCommand<Unit, Unit> Start { get; }
-        //public ReactiveCommand<Unit, Unit> Stop { get; }
-
-        //public ReactiveCommand<Unit, Unit> Jump { get; }
-        //public ReactiveCommand<Unit, Unit> MoveLeft { get; }
-        //public ReactiveCommand<Unit, Unit> MoveRight { get; }
-        // public ReactiveCommand<Unit, Unit> StopMoving { get; }
-
+    Level level;
+    public Level Level { get => level; set => this.RaiseAndSetIfChanged(ref level, value); }
+    public DrawingImage Screen { get; } = new DrawingImage();
+    public ReactiveCommand<Unit, Unit> Start { get; }
    
-        float ballMass = 1;
-        public float BallMass { get => ballMass; set => this.RaiseAndSetIfChanged(ref ballMass, value); }
-        float ballRad = 20;
-        public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
+    float ballMass = 1;
+    public float BallMass { get => ballMass; set => this.RaiseAndSetIfChanged(ref ballMass, value); }
+    float ballRad = 20;
+    public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
    
-        public ReactiveCommand<Unit, Unit> CreateGame { get; }
-        bool gameActive;
-        public bool GameActive { get => gameActive; set => this.RaiseAndSetIfChanged(ref gameActive, value); }
+    public ReactiveCommand<Unit, Unit> CreateGame { get; }
+    bool gameActive;
+    public bool GameActive { get => gameActive; set => this.RaiseAndSetIfChanged(ref gameActive, value); }
 
-        int windowHeight;
-        public int WindowHeight { get => windowHeight; set => this.RaiseAndSetIfChanged(ref windowHeight, value); }
+    int windowHeight;
+    public int WindowHeight { get => windowHeight; set => this.RaiseAndSetIfChanged(ref windowHeight, value); }
 
-        int windowWidth;
-        public int WindowWidth { get => windowWidth; set => this.RaiseAndSetIfChanged(ref windowWidth, value); }
-        public Subject<long> GenerateScene { get; } = new();
+    int windowWidth;
+    public int WindowWidth { get => windowWidth; set => this.RaiseAndSetIfChanged(ref windowWidth, value); }
+    public Subject<long> GenerateScene { get; } = new();
 
-        private bool isOnGround = true;
+    private bool isOnGround = true;
 
-        bool isJumping;
-        public bool IsJumping
-        { get => isJumping;
-        set =>  this.RaiseAndSetIfChanged(ref isJumping, value);
-        }
+    bool isJumping;
+    public bool IsJumping
+    { get => isJumping;
+    set =>  this.RaiseAndSetIfChanged(ref isJumping, value);
+    }
 
-        bool _isMoveR;
-        public bool IsMoveR { get => _isMoveR; set => this.RaiseAndSetIfChanged(ref _isMoveR, value); }
+    bool _isMoveR;
+    public bool IsMoveR { get => _isMoveR; set => this.RaiseAndSetIfChanged(ref _isMoveR, value); }
 
-        bool _isMoveL;
-        public bool IsMoveL 
-        { 
-            get => _isMoveL; 
-            set => this.RaiseAndSetIfChanged(ref _isMoveL, value); 
-        }
+    bool _isMoveL;
+    public bool IsMoveL 
+    { 
+        get => _isMoveL; 
+        set => this.RaiseAndSetIfChanged(ref _isMoveL, value); 
+    }
 
-        DateTime starttime;
+    DateTime starttime;
 
     public void UpdateMovement(long tick)
     {
@@ -156,13 +209,12 @@ public class MainViewModel : ViewModelBase
         //    Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Сбрасываем горизонтальную скорость
         //}
     }
-
     public void ApplyPhysics(long tick)
     {
         float dt = (float)((DateTime.Now - starttime).TotalMilliseconds / 1000.0);
-        if (dt > 0.1f) dt = 0.1f; 
+        if (dt > 0.1f) dt = 0.1f;
 
-        const float gravity = -9.8f * 300; 
+        const float gravity = -9.8f * 300;
         const float jumpForce = 400f;    // Сила прыжка
 
         // Применяем гравитацию к скорости
@@ -170,6 +222,9 @@ public class MainViewModel : ViewModelBase
         var newPosition = Ball.Position + newVelocity * dt;
 
         float groundLevel = 0;
+        bool isOnPlatform = false;
+
+        HandleCollisions(ref newPosition, ref newVelocity, ref isOnPlatform, ref isOnGround, dt);
 
         // Проверка столкновения с землёй
         if (newPosition.Y - Ball.Rad <= groundLevel)
@@ -197,39 +252,85 @@ public class MainViewModel : ViewModelBase
         // Обработка прыжка
         if (IsJumping && isOnGround)
         {
-            newVelocity = new Vector2(newVelocity.X, jumpForce); 
-            isOnGround = false; 
-            IsJumping = false; 
-            Debug.WriteLine($"Jump initiated: IsJumping={IsJumping}, isOnGround={isOnGround}, Velocity={newVelocity}, Position={newPosition}");
+            newVelocity = new Vector2(newVelocity.X, jumpForce);
+            isOnGround = false;
+            IsJumping = false;
         }
 
         // Проверка столкновения с левой и правой границей
-        if (newPosition.X - Ball.Rad <= 0) 
+        if (newPosition.X - Ball.Rad <= 0)
         {
-            const float bounceFactor = 0.6f; 
-            newPosition = new Vector2(Ball.Rad, newPosition.Y); 
-            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y); 
+            const float bounceFactor = 0.6f;
+            newPosition = new Vector2(Ball.Rad, newPosition.Y);
+            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);
         }
 
-        if (newPosition.X + Ball.Rad >= WindowWidth) 
+        if (newPosition.X + Ball.Rad >= WindowWidth)
         {
-            const float bounceFactor = 0.6f; 
-            newPosition = new Vector2(WindowWidth - Ball.Rad, newPosition.Y); 
-            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y); 
+            const float bounceFactor = 0.6f;
+            newPosition = new Vector2(WindowWidth - Ball.Rad, newPosition.Y);
+            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);
         }
+
         // Обновление состояния шарика
         Ball.Velocity = newVelocity;
         Ball.Position = newPosition;
 
         starttime = DateTime.Now;
 
-        Debug.WriteLine($"Position: {Ball.Position}, Velocity: {Ball.Velocity}, isOnGround: {isOnGround}, IsJumping: {IsJumping}");
+        //Debug.WriteLine($"Position: {Ball.Position}, Velocity: {Ball.Velocity}, isOnGround: {isOnGround}, IsJumping: {IsJumping}");
     }
+    private void HandleCollisions(ref Vector2 newPosition, ref Vector2 newVelocity, ref bool isOnPlatform, ref bool isOnGround, float dt)
+    {
+        // Столкновение с платформами
+        foreach (var platform in Level.Platforms)
+        {
+            var LeftUppPoint = new Vector2(platform.Position.X, platform.Position.Y);
+            var RightUppPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y);
+            var LeftDownPoint = new Vector2(platform.Position.X, platform.Position.Y - platform.Height);
+            var RightDownPoint = new Vector2(platform.Position.X + platform.Width, platform.Position.Y - platform.Height);
+            // Проверка столкновения с платформой
+            if (newPosition.X + Ball.Rad > LeftUppPoint.X && newPosition.X + Ball.Rad < RightUppPoint.X && newPosition.Y - Ball.Rad >= platform.Position.Y)            // Если шарик слева от платформы             
+            {
+                // Шарик касается платформы
+                newPosition = new Vector2(newPosition.X, platform.Position.Y + Ball.Rad); // Устанавливаем мяч на платформу
+                newVelocity = new Vector2(newVelocity.X, 0); // Останавливаем вертикальную скорость
+                isOnPlatform = true; // Шарик стоит на платформе
+            }
 
+        }
+        // Столкновение с монеткой (единственная монетка)
+        if (Level.Coin != null)
+        {
+            float distance = Vector2.Distance(newPosition, Level.Coin.Position);
+
+            if (distance <= Ball.Rad + Level.Coin.Rad) // Если мяч касается монетки
+            {
+                Level.Coin = null; // Монетка исчезает
+            }
+        }
+    }
     public MainViewModel()
         {
 
-        Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 20) };
+        LevelManager = new LevelManager();
+
+        // Создаем уровни
+        var level1 = new Level
+        {
+            Platforms = new List<Platform>
+        {
+            new Platform { Position = new Vector2(712, 50), Velocity = Vector2.Zero , Height = 20 , Width = 50},
+        },
+            Coin = new Coin { Position = new Vector2(820, 60), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(750, 0), Width = 50, Heigth = 50 }
+        };
+        LevelManager.AddLevel(level1);
+
+        // Убедитесь, что текущий уровень задан
+        Level = LevelManager.CurrentLevel;
+
+        Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 50) };
 
         CreateGame = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
             {
@@ -241,45 +342,6 @@ public class MainViewModel : ViewModelBase
             });
             }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => !active));
 
-        //MoveLeft = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
-        //{
-        //    IsMoveL = true;
-        //    IsMoveR = false;
-        //    return Task.Run(() =>
-        //    {
-        //        UpdateMovement(0);
-        //        return Unit.Default;
-        //    });
-        //});
-        /*MoveLeft = ReactiveCommand.Create(() =>
-        {
-            IsMoveL = true;
-            IsMoveR = false;
-            UpdateMovement(0);
-        });*/
-
-        //MoveRight = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
-        //{
-        //    IsMoveL = false;
-        //    IsMoveR = true;
-        //    return Task.Run(() =>
-        //    {
-        //        //UpdateMovement(0);
-        //        return Unit.Default;
-        //    });
-        //});
-
-        //StopMoving = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
-        //{
-        //    IsMoveL = false;
-        //    IsMoveR = false;
-        //    return Task.Run(() =>
-        //    {
-        //        //UpdateMovement(0);
-
-        //        return Unit.Default;
-        //    });
-        //});
         this.WhenAnyValue(x => x.IsMoveL, x => x.IsMoveR)
             .Subscribe(_ =>
             {
@@ -310,12 +372,6 @@ public class MainViewModel : ViewModelBase
                 return Unit.Default;
             });
         }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => !active));
-
-        //Stop = ReactiveCommand.Create<Unit, Unit>(_ =>
-        //{
-        //        GameActive = false;
-        //        return Unit.Default;
-        //}, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => active));
 
     }
 }
