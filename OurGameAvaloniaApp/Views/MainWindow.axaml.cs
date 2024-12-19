@@ -28,7 +28,7 @@ namespace OurGameAvaloniaApp.Views
         private LibVLC _libVLC;
         private MainViewModel _viewModel;
         private Rectangle groundRectangle;
-
+        private bool isPaused = false;
 
         public MainWindow()
         {
@@ -92,6 +92,17 @@ namespace OurGameAvaloniaApp.Views
                 _viewModel.IsMoveL = false;
                 _viewModel.IsMoveR = true;
             }
+            else if (e.Key == Key.Escape)
+            {
+                if (isPaused)
+                {
+                    ResumeGame();
+                }
+                else
+                {
+                    PauseGame();
+                }
+            }
         }
 
         private void Window_KeyUp(object sender, Avalonia.Input.KeyEventArgs e)
@@ -128,15 +139,15 @@ namespace OurGameAvaloniaApp.Views
         {
             if (_mediaPlayer != null)
             {
-                double volume = e.NewValue; // Получить новое значение громкости
-                _mediaPlayer.Volume = (int)volume; // Установите громкость в медиаплеере
-                Console.WriteLine($"Громкость установлена на: {volume}");
+                double volume = e.NewValue; 
+                _mediaPlayer.Volume = (int)volume;
+                Debug.WriteLine($"Громкость установлена на: {volume}");
             }
         }
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); // Закрытие приложения
+            this.Close(); 
         }
 
         private void WindowSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -158,6 +169,38 @@ namespace OurGameAvaloniaApp.Views
             _viewModel.WindowHeight = Convert.ToInt32(this.Height);
             _viewModel.WindowWidth = Convert.ToInt32(this.Width);
         }
+
+        private void PauseGame()
+        {
+            isPaused = true;
+            Menu.IsVisible = false; // Скрыть главное меню
+            DrawingCanvas.IsVisible = false; // Скрыть игровую область
+            PauseMenu.IsVisible = true; // Показать меню паузы
+        }
+
+        private void ResumeGame()
+        {
+            isPaused = false;
+            Menu.IsVisible = false; // Скрыть меню паузы
+            DrawingCanvas.IsVisible = true; // Показать игровую область
+            PauseMenu.IsVisible = false;
+            // Здесь вы можете добавить логику для показа главного меню, если это необходимо
+        }
+
+        private void ContinueButton_Click(object sender, RoutedEventArgs e)
+        {
+            ResumeGame();
+        }
+
+        private void ExitToMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            // Логика для выхода в главное меню
+            ResumeGame(); // Сначала возобновляем игру, если это необходимо
+            Menu.IsVisible = true; // Показываем главное меню
+            PauseMenu.IsVisible = false;
+            DrawingCanvas.IsVisible = false;// Скрываем меню паузы
+        }
+
 
         private void Redraw(long tick)
         {
