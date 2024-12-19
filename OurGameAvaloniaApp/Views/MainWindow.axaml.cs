@@ -28,9 +28,9 @@ namespace OurGameAvaloniaApp.Views
         private LibVLC _libVLC;
         private MainViewModel _viewModel;
         private Rectangle groundRectangle;
-        private bool isPaused = false;
+        public static bool isPaused = false;
 
-        public MainWindow()
+      public MainWindow()
         {
             InitializeComponent();
             Core.Initialize();
@@ -94,13 +94,15 @@ namespace OurGameAvaloniaApp.Views
             }
             else if (e.Key == Key.Escape)
             {
-                if (isPaused)
+                if (isPaused && _viewModel.GameActive)
                 {
-                    ResumeGame();
+
+                  ResumeGame();
                 }
-                else
-                {
-                    PauseGame();
+                else if(_viewModel.GameActive)
+                {  
+
+                  PauseGame();
                 }
             }
         }
@@ -126,13 +128,23 @@ namespace OurGameAvaloniaApp.Views
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             Menu.IsVisible = false;
+            PauseMenu.IsVisible = false;
             SettingsPanel.IsVisible = true;
         }
 
         private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             SettingsPanel.IsVisible = false;
-            Menu.IsVisible = true;
+            if (isPaused)
+            {
+               PauseMenu.IsVisible = true;
+               Menu.IsVisible = false;
+            }
+            else
+            {
+               PauseMenu.IsVisible = false;
+               Menu.IsVisible = true;
+            }
         }
 
         private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -173,6 +185,8 @@ namespace OurGameAvaloniaApp.Views
         private void PauseGame()
         {
             isPaused = true;
+            _viewModel.UpdateMovement(0, isPaused);
+            _viewModel.ApplyPhysics(0, isPaused);
             Menu.IsVisible = false; // Скрыть главное меню
             DrawingCanvas.IsVisible = false; // Скрыть игровую область
             PauseMenu.IsVisible = true; // Показать меню паузы
@@ -181,11 +195,13 @@ namespace OurGameAvaloniaApp.Views
         private void ResumeGame()
         {
             isPaused = false;
-            Menu.IsVisible = false; // Скрыть меню паузы
+            _viewModel.UpdateMovement(0, isPaused);
+            _viewModel.ApplyPhysics(0, isPaused);
+            Menu.IsVisible = false; 
             DrawingCanvas.IsVisible = true; // Показать игровую область
-            PauseMenu.IsVisible = false;
-            // Здесь вы можете добавить логику для показа главного меню, если это необходимо
-        }
+            PauseMenu.IsVisible = false; // Скрыть меню паузы
+                     // Здесь вы можете добавить логику для показа главного меню, если это необходимо
+      }
 
         private void ContinueButton_Click(object sender, RoutedEventArgs e)
         {
@@ -194,8 +210,7 @@ namespace OurGameAvaloniaApp.Views
 
         private void ExitToMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            // Логика для выхода в главное меню
-            ResumeGame(); // Сначала возобновляем игру, если это необходимо
+         // Логика для выхода в главное меню
             Menu.IsVisible = true; // Показываем главное меню
             PauseMenu.IsVisible = false;
             DrawingCanvas.IsVisible = false;// Скрываем меню паузы

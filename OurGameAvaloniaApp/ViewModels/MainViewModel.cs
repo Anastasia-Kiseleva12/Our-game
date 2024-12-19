@@ -13,6 +13,7 @@ using System.Net.Sockets;
 using LibVLCSharp.Shared;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using OurGameAvaloniaApp.Views;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -104,6 +105,8 @@ public class LevelManager : ReactiveObject
 
 public class MainViewModel : ViewModelBase
 {
+    private MainWindow _mainWindow;   
+
     Ball ball;
     public Ball Ball { get => ball; set => this.RaiseAndSetIfChanged(ref ball, value); }
 
@@ -114,8 +117,10 @@ public class MainViewModel : ViewModelBase
     public Level Level { get => level; set => this.RaiseAndSetIfChanged(ref level, value); }
     public DrawingImage Screen { get; } = new DrawingImage();
     public ReactiveCommand<Unit, Unit> Start { get; }
-   
-    float ballMass = 1;
+
+   public ReactiveCommand<Unit, Unit> End { get; }
+
+   float ballMass = 1;
     public float BallMass { get => ballMass; set => this.RaiseAndSetIfChanged(ref ballMass, value); }
     float ballRad = 20;
     public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
@@ -157,8 +162,12 @@ public class MainViewModel : ViewModelBase
 
     DateTime starttime;
 
-    public void UpdateMovement(long tick)
+    public void UpdateMovement(long tick, bool isPaused)
     {
+        if (isPaused)
+        {
+           return; // Останавливаем выполнение функции, если игра на паузе
+        }
         float dt = (float)((DateTime.Now - starttime).TotalMilliseconds / 1000.0);
         if (dt > 0.1f) dt = 0.1f;
         starttime = DateTime.Now;
@@ -215,8 +224,13 @@ public class MainViewModel : ViewModelBase
         //    Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Сбрасываем горизонтальную скорость
         //}
     }
-    public void ApplyPhysics(long tick)
+    public void ApplyPhysics(long tick, bool isPaused)
     {
+        if (isPaused)
+        {
+           return; // Останавливаем выполнение функции, если игра на паузе
+        }
+
         float dt = (float)((DateTime.Now - starttime).TotalMilliseconds / 1000.0);
         if (dt > 0.1f) dt = 0.1f;
 
@@ -381,16 +395,6 @@ public class MainViewModel : ViewModelBase
 
         Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 50) };
 
-        CreateGame = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
-            {
-            return Task.Run(() =>
-            {
-
-                Ball = new Ball() { Mass = BallMass, Rad = BallRad };
-                return Unit.Default;
-            });
-            }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => !active));
-
         this.WhenAnyValue(x => x.IsMoveL, x => x.IsMoveR)
             .Subscribe(_ =>
             {
@@ -412,8 +416,8 @@ public class MainViewModel : ViewModelBase
                     .TakeUntil(this.WhenAnyValue(t => t.GameActive).Where(act => !act))
                     .Subscribe(_ =>
                     {
-                        UpdateMovement(0);
-                        ApplyPhysics(0);
+                        UpdateMovement(0, MainWindow.isPaused);
+                        ApplyPhysics(0, MainWindow.isPaused);
                         if (levelManager.IsLevelComplete(Ball))
                         {
                             if (levelManager.LoadNextLevel())
