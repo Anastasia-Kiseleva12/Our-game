@@ -356,8 +356,8 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1100, 650), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
 
         },
-           Coin = new Coin { Position = new Vector2(150, 540), Rad = 20 },
-           Portal = new Portal { Position = new Vector2(750, 870), Width = 50, Heigth = 50 }
+           Coin = new Coin { Position = new Vector2(40, 340), Rad = 20 },
+           Portal = new Portal { Position = new Vector2(1300, 0), Width = 50, Heigth = 50 }
         };
       var level2 = new Level
       {
