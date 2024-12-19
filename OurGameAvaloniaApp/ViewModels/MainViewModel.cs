@@ -14,8 +14,7 @@ using LibVLCSharp.Shared;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OurGameAvaloniaApp.Views;
-using Avalonia.Collections;
-using System.Security.Cryptography.X509Certificates;
+using System.ComponentModel;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -60,6 +59,8 @@ public class Level : ReactiveObject
     public Coin Coin { get; set; }
     public Portal Portal { get; set; }
 }
+
+
 public class LevelManager : ReactiveObject
 {
     public List<Level> levels = new();
@@ -127,12 +128,6 @@ public class MainViewModel : ViewModelBase
     float ballRad = 20;
     public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
 
-    //float plheight = 20;
-    //public float Plheight { get => plheight; set => this.RaiseAndSetIfChanged(ref plheight, value); }
-
-    //float plHeight = 100;
-    //public float PlHeight { get => plHeight; set => this.RaiseAndSetIfChanged(ref plHeight, value); }
-
     public ReactiveCommand<Unit, Unit> CreateGame { get; }
     bool gameActive;
     public bool GameActive { get => gameActive; set => this.RaiseAndSetIfChanged(ref gameActive, value); }
@@ -179,11 +174,17 @@ public class MainViewModel : ViewModelBase
         // Проверяем нажатие клавиш
         if (IsMoveL)
         {
-            Ball.Velocity = new Vector2(Ball.Velocity.X - 5, Ball.Velocity.Y); // Двигаем влево
+             if(Math.Abs(Ball.Velocity.X) <= 500)
+             {
+                Ball.Velocity = new Vector2(Ball.Velocity.X - 3, Ball.Velocity.Y); // Двигаем влево
+             }
         }
         else if (IsMoveR)
         {
-            Ball.Velocity = new Vector2(Ball.Velocity.X + 5, Ball.Velocity.Y); // Двигаем вправо
+            if (Math.Abs(Ball.Velocity.X) <= 500)
+            {
+                Ball.Velocity = new Vector2(Ball.Velocity.X + 3, Ball.Velocity.Y); // Двигаем вправо
+            }
         }
         else
         {
@@ -212,19 +213,6 @@ public class MainViewModel : ViewModelBase
         Math.Max(0, Ball.Position.Y)
         );
 
-        //// Обработка столкновения с левой границей
-        //if (Ball.Position.X - Ball.Rad <= 0)
-        //{
-        //    Ball.Position = new Vector2(Ball.Rad, Ball.Position.Y); // Корректируем позицию
-        //    Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Сбрасываем горизонтальную скорость
-        //}
-
-        //// Обработка столкновения с правой границей
-        //if (Ball.Position.X + Ball.Rad >= WindowWidth)
-        //{
-        //    Ball.Position = new Vector2(WindowWidth - Ball.Rad, Ball.Position.Y); // Корректируем позицию
-        //    Ball.Velocity = new Vector2(0, Ball.Velocity.Y); // Сбрасываем горизонтальную скорость
-        //}
     }
     public void ApplyPhysics(long tick, bool isPaused)
     {
@@ -237,7 +225,7 @@ public class MainViewModel : ViewModelBase
         if (dt > 0.1f) dt = 0.1f;
 
         const float gravity = -9.8f * 300;
-        const float jumpForce = 400f;    // Сила прыжка
+        const float jumpForce = 500f;    // Сила прыжка
 
         // Применяем гравитацию к скорости
         var newVelocity = Ball.Velocity + new Vector2(0, gravity * dt);
@@ -256,7 +244,7 @@ public class MainViewModel : ViewModelBase
 
             if (Math.Abs(newVelocity.Y) > 350) // Если скорость выше порога
             {
-                const float bounceFactor = 0.6f; // Коэффициент упругости 
+                const float bounceFactor = 0.5f; // Коэффициент упругости 
                 newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor); // Создаём отскок
                 isOnGround = false;
             }
@@ -280,19 +268,32 @@ public class MainViewModel : ViewModelBase
             isOnPlatform = false;
         }
 
-        // Проверка столкновения с левой и правой границей
         if (newPosition.X - Ball.Rad <= 0)
         {
             const float bounceFactor = 0.6f;
-            newPosition = new Vector2(Ball.Rad, newPosition.Y);
-            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);
+            newPosition = new Vector2(Ball.Rad, newPosition.Y);  // Обновляем позицию, чтобы шарик не выходил за пределы
+            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);  // Меняем направление
         }
 
         if (newPosition.X + Ball.Rad >= WindowWidth)
         {
             const float bounceFactor = 0.6f;
-            newPosition = new Vector2(WindowWidth - Ball.Rad, newPosition.Y);
-            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);
+            newPosition = new Vector2(WindowWidth - Ball.Rad, newPosition.Y);  // Обновляем позицию
+            newVelocity = new Vector2(-newVelocity.X * bounceFactor, newVelocity.Y);  // Меняем направление
+        }
+
+        if (newPosition.Y + Ball.Rad >= WindowHeight)
+        {
+            const float bounceFactor = 0.6f;
+            newPosition = new Vector2(newPosition.X, WindowHeight - Ball.Rad);  // Обновляем позицию, чтобы шарик не выходил за нижнюю границу
+            newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor);  // Меняем направление
+        }
+
+        if (newPosition.Y + Ball.Rad >= WindowHeight)
+        {
+            const float bounceFactor = 0.6f;
+            newPosition = new Vector2(newPosition.X, WindowHeight - Ball.Rad);  // Обновляем позицию, чтобы шарик не выходил за нижнюю границу
+            newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor);  // Меняем направление
         }
 
         // Обновление состояния шарика
@@ -327,7 +328,7 @@ public class MainViewModel : ViewModelBase
             }
 
         }
-        // Столкновение с монеткой (единственная монетка)
+        // Столкновение с монеткой 
         if (Level.Coin != null)
         {
             float distance = Vector2.Distance(newPosition, Level.Coin.Position);
@@ -347,7 +348,7 @@ public class MainViewModel : ViewModelBase
         // Создаем уровни
         var level1 = new Level
         {
-           Platforms = new List<Platform>
+            Platforms = new List<Platform>
         {
             new Platform { Position = new Vector2(0, 300), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(100, 500), Velocity = Vector2.Zero , Height = 20 , Width = 160 },
@@ -358,8 +359,8 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1100, 650), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
 
         },
-           Coin = new Coin { Position = new Vector2(150, 540), Rad = 20 },
-           Portal = new Portal { Position = new Vector2(750, 870), Width = 50, Heigth = 50 }
+           Coin = new Coin { Position = new Vector2(40, 540), Rad = 20 },
+           Portal = new Portal { Position = new Vector2(1300, 0), Width = 50, Heigth = 50 }
         };
       var level2 = new Level
       {
@@ -374,9 +375,9 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1350, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
             new Platform { Position = new Vector2(1350, 350), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
         },
-          Coin = new Coin { Position = new Vector2(1850, 940), Rad = 20 },
-          Portal = new Portal { Position = new Vector2(1800, 400), Width = 50, Heigth = 50 }
-      };
+            Coin = new Coin { Position = new Vector2(150, 350), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1800, 400), Width = 50, Heigth = 50 }
+        };
         var level3 = new Level
         {
             Platforms = new List<Platform>
