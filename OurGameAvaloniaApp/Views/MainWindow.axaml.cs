@@ -15,10 +15,11 @@ using Avalonia;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using System.Collections.Generic;
 
 namespace OurGameAvaloniaApp.Views
 {
-    public partial class MainWindow : Window
+   public partial class MainWindow : Window
     {
         private Ellipse ballEllipse;
         private Platform platform;
@@ -39,12 +40,21 @@ namespace OurGameAvaloniaApp.Views
             _mediaPlayer = new MediaPlayer(_libVLC);
             _viewModel = (MainViewModel)DataContext;
 
-            _viewModel.GenerateScene
+            var fullScreenCheckBox = this.FindControl<CheckBox>("FullScreenCheckBox");
+            this.FindControl<CheckBox>("FullScreenCheckBox").Checked += OnFullScreenChecked;
+            this.FindControl<CheckBox>("FullScreenCheckBox").Unchecked += OnFullScreenUnchecked;
+            if (fullScreenCheckBox.IsChecked == true)
+            {
+               this.WindowState = WindowState.FullScreen;
+            }
+            DataContext = this; // Устанавливаем DataContext для привязки
+
+
+         _viewModel.GenerateScene
            .ObserveOn(RxApp.MainThreadScheduler)  // Обновление UI в главном потоке
            .Subscribe(Redraw);
             this.KeyDown += Window_KeyDown;
             this.KeyUp += Window_KeyUp;
-
             this.Opened += OnWindowOpened;
             try
             {
@@ -58,16 +68,25 @@ namespace OurGameAvaloniaApp.Views
                 var media = new Media(_libVLC, filePath, FromType.FromPath);
                 _mediaPlayer.Play(media);
                 
-                VolumeSlider.Value = _mediaPlayer.Volume; // Установите значение слайдера в соответствии с громкостью
+                VolumeSlider.Value = _mediaPlayer.Volume;
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Ошибка: {ex.Message}");
             }
         }
-        private void OnWindowOpened(object sender, EventArgs e)
+
+      private void OnFullScreenChecked(object sender, RoutedEventArgs e)
+      {
+         this.WindowState = WindowState.FullScreen; // Устанавливаем полноэкранный режим
+      }
+
+      private void OnFullScreenUnchecked(object sender, RoutedEventArgs e)
+      {
+         this.WindowState = WindowState.Normal; // Возвращаемся в обычный режим
+      }
+      private void OnWindowOpened(object sender, EventArgs e)
         {
-            // Теперь размеры окна доступны
             _viewModel.WindowHeight = Convert.ToInt32(this.Height);
             _viewModel.WindowWidth = Convert.ToInt32(this.Width);
         }
@@ -119,7 +138,7 @@ namespace OurGameAvaloniaApp.Views
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
         {
-            Menu.IsVisible = false; // Скрыть меню
+            Menu.IsVisible = false;
             var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             _viewModel.Start.Execute(Unit.Default);
@@ -185,22 +204,17 @@ namespace OurGameAvaloniaApp.Views
         private void PauseGame()
         {
             isPaused = true;
-            _viewModel.UpdateMovement(0, isPaused);
-            _viewModel.ApplyPhysics(0, isPaused);
-            Menu.IsVisible = false; // Скрыть главное меню
-            DrawingCanvas.IsVisible = false; // Скрыть игровую область
-            PauseMenu.IsVisible = true; // Показать меню паузы
+            Menu.IsVisible = false;
+            DrawingCanvas.IsVisible = false;
+            PauseMenu.IsVisible = true;
         }
 
         private void ResumeGame()
         {
             isPaused = false;
-            _viewModel.UpdateMovement(0, isPaused);
-            _viewModel.ApplyPhysics(0, isPaused);
             Menu.IsVisible = false; 
-            DrawingCanvas.IsVisible = true; // Показать игровую область
-            PauseMenu.IsVisible = false; // Скрыть меню паузы
-                     // Здесь вы можете добавить логику для показа главного меню, если это необходимо
+            DrawingCanvas.IsVisible = true;
+            PauseMenu.IsVisible = false;
       }
 
         private void ContinueButton_Click(object sender, RoutedEventArgs e)

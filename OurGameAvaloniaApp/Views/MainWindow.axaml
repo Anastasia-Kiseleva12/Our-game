@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:views="clr-namespace:OurGameAvaloniaApp.Views"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        mc:Ignorable="d" d:DesignWidth="1920" d:DesignHeight="1080"
         x:Class="OurGameAvaloniaApp.Views.MainWindow"
         Icon="/Assets/logo.ico"
         Title="safari time!">
+
 
    <Window.DataContext>
       <vm:MainViewModel />
@@ -44,12 +45,19 @@
             <TextBlock Text="Volume" Margin="0,30,0,0" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
             <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged"/>
             <TextBlock Text="Window size" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
-            <ComboBox x:Name="WindowSizeComboBox" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,10,0,20" SelectionChanged="WindowSizeComboBox_SelectionChanged">
-               <ComboBoxItem Content="800x600" />
-               <ComboBoxItem Content="1024x768" />
-               <ComboBoxItem Content="1280x720"/>
-               <ComboBoxItem Content="1920x1080"/>
+            <ComboBox x:Name="WindowSizeComboBox"  HorizontalAlignment="Center" VerticalAlignment="Top" Width="150" Margin="0,10,0,20" SelectionChanged="WindowSizeComboBox_SelectionChanged"  >
+               <ComboBoxItem>800x600</ComboBoxItem>
+               <ComboBoxItem>1024x768</ComboBoxItem>
+               <ComboBoxItem>1280x720</ComboBoxItem>
+               <ComboBoxItem>1920x1080</ComboBoxItem>
             </ComboBox>
+            <TextBlock Text="Full screen" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
+            <CheckBox x:Name="FullScreenCheckBox" 
+                      IsChecked="True" 
+                      HorizontalAlignment="Center" 
+                      Checked="OnFullScreenChecked" 
+                      Unchecked="OnFullScreenUnchecked"
+                      Foreground="#A94B26"/>
             <Button Content="Back" Width="150" Height="50" Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="24" FontFamily="{StaticResource FreckleFaceFont}" Click="BackButton_Click" />
              
       </StackPanel>
