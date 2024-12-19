@@ -53,57 +53,11 @@ public class Platform : ReactiveObject
     public required float Height { get; init; }
     public required float Width { get; init; }
 }
-public class Level : INotifyPropertyChanged
+public class Level : ReactiveObject
 {
-    private double windowWidth;
-    private double windowHeight;
-    public List<Platform> Platforms { get; set; } = new List<Platform>();
-
-    public double WindowWidth
-    {
-        get => windowWidth;
-        set
-        {
-            if (windowWidth != value)
-            {
-                windowWidth = value;
-                OnPropertyChanged(nameof(WindowWidth));
-                UpdateObjectPositions();
-            }
-        }
-    }
-
-    public double WindowHeight
-    {
-        get => windowHeight;
-        set
-        {
-            if (windowHeight != value)
-            {
-                windowHeight = value;
-                OnPropertyChanged(nameof(WindowHeight));
-                UpdateObjectPositions();
-            }
-        }
-    }
-
-    public Ball Ball { get; set; }
+    public List<Platform> Platforms { get; set; } = new();
     public Coin Coin { get; set; }
     public Portal Portal { get; set; }
-
-    private void UpdateObjectPositions()
-    {
-        // Пример: адаптивное позиционирование объектов
-        Ball.Position = new Vector2((float)(WindowWidth * 0.1), (float)(WindowHeight * 0.1));
-        Coin.Position = new Vector2((float)(WindowWidth * 0.5), (float)(WindowHeight * 0.5)); // Центр окна
-        Portal.Position = new Vector2((float)(WindowWidth * 0.9), (float)(WindowHeight * 0.9)); // 90% от нижнего правого угла
-    }
-
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
 }
 
 
@@ -290,7 +244,7 @@ public class MainViewModel : ViewModelBase
 
             if (Math.Abs(newVelocity.Y) > 350) // Если скорость выше порога
             {
-                const float bounceFactor = 0.6f; // Коэффициент упругости 
+                const float bounceFactor = 0.5f; // Коэффициент упругости 
                 newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor); // Создаём отскок
                 isOnGround = false;
             }
@@ -405,7 +359,7 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1100, 650), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
 
         },
-           Coin = new Coin { Position = new Vector2(40, 340), Rad = 20 },
+           Coin = new Coin { Position = new Vector2(40, 540), Rad = 20 },
            Portal = new Portal { Position = new Vector2(1300, 0), Width = 50, Heigth = 50 }
         };
       var level2 = new Level

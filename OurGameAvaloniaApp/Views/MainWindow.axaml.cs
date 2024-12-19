@@ -242,13 +242,13 @@ namespace OurGameAvaloniaApp.Views
 
         private void ExitToMenuButton_Click(object sender, RoutedEventArgs e)
         {
-         // Логика для выхода в главное меню
+            // Логика для выхода в главное меню
             isPaused = false;
             _viewModel.GameActive = false;
             Menu.IsVisible = true; // Показываем главное меню
             PauseMenu.IsVisible = false;
             DrawingCanvas.Children.Clear();
-         }
+        }
 
 
         private void Redraw(long tick)
