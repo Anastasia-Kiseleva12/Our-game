@@ -240,7 +240,7 @@ public class MainViewModel : ViewModelBase
 
             if (Math.Abs(newVelocity.Y) > 350) // Если скорость выше порога
             {
-                const float bounceFactor = 0.3f; // Коэффициент упругости 
+                const float bounceFactor = 0.6f; // Коэффициент упругости 
                 newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor); // Создаём отскок
                 isOnGround = false;
             }
@@ -331,14 +331,21 @@ public class MainViewModel : ViewModelBase
         // Создаем уровни
         var level1 = new Level
         {
-            Platforms = new List<Platform>
+           Platforms = new List<Platform>
         {
-            new Platform { Position = new Vector2(412, 70), Velocity = Vector2.Zero , Height = 20 , Width = 300},
+            new Platform { Position = new Vector2(0, 300), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(300, 150), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(600, 450), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(900, 600), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(1200, 750), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(1350, 900), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
+            new Platform { Position = new Vector2(1350, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
+            new Platform { Position = new Vector2(1350, 350), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
         },
-            Coin = new Coin { Position = new Vector2(450, 100), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(950, 0), Width = 50, Heigth = 50 }
+           Coin = new Coin { Position = new Vector2(150, 350), Rad = 20 },
+           Portal = new Portal { Position = new Vector2(1800, 400), Width = 50, Heigth = 50 }
         };
-        var level2 = new Level
+      var level2 = new Level
         {
             Platforms = new List<Platform>
         {
@@ -352,12 +359,16 @@ public class MainViewModel : ViewModelBase
         {
             Platforms = new List<Platform>
         {
-            new Platform { Position = new Vector2(50, 50), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
-            new Platform { Position = new Vector2(150, 200), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
-            new Platform { Position = new Vector2(250, 400), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
+            new Platform { Position = new Vector2(412, 70), Velocity = Vector2.Zero , Height = 20 , Width = 300},
+            new Platform { Position = new Vector2(0, 140), Velocity = Vector2.Zero , Height = 20 , Width = 300},
+            new Platform { Position = new Vector2(412, 210), Velocity = Vector2.Zero , Height = 20 , Width = 1000},
+            new Platform { Position = new Vector2(1370, 350), Velocity = Vector2.Zero , Height = 20 , Width = 1000},
+            new Platform { Position = new Vector2(1410, 480), Velocity = Vector2.Zero , Height = 20 , Width = 1000},
+            new Platform { Position = new Vector2(300, 650), Velocity = Vector2.Zero , Height = 20 , Width = 500},
+            new Platform { Position = new Vector2(0, 850), Velocity = Vector2.Zero , Height = 20 , Width = 270},
         },
-            Coin = new Coin { Position = new Vector2(150, 250), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(60, 70), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(20, 890), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1800, 375), Width = 50, Heigth = 50 }
         };
 
         LevelManager.AddLevel(level1);
