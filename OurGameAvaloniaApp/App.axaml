@@ -6,13 +6,18 @@
     <Application.Styles>
        <FluentTheme>
           <FluentTheme.Palettes>
+
              <ColorPaletteResources x:Key="Dark"/>
           </FluentTheme.Palettes>
        </FluentTheme>
            
     </Application.Styles>
 	<Application.Resources>
-		<FontFamily x:Key="FreckleFaceFont">avares://OurGameAvaloniaApp/Assets/Fonts#Freckle Face</FontFamily>
-      
+		<FontFamily x:Key="FreckleFaceFont">avares://OurGameAvaloniaApp/Assets/Fonts#Freckle Face</FontFamily>     
 	</Application.Resources>
+   <Application.Styles>
+      <Style Selector="Slider">
+         <Setter Property="Background" Value="LightGray"/>
+      </Style>
+   </Application.Styles>
 </Application>
