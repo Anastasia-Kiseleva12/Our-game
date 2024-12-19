@@ -141,7 +141,11 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = false;
             var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+            _viewModel.Ball.Position = new Vector2(712, 20);
+            _viewModel.LevelManager.currentLevelIndex = 0;
+            var currentLevel = _viewModel.LevelManager.currentLevelIndex;
             _viewModel.Start.Execute(Unit.Default);
+            DrawingCanvas.IsVisible = true;
         }
 
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
@@ -178,7 +182,7 @@ namespace OurGameAvaloniaApp.Views
 
         private void ExitButton_Click(object sender, RoutedEventArgs e)
         {
-            this.Close(); 
+         this.Close(); 
         }
 
         private void WindowSizeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -229,7 +233,6 @@ namespace OurGameAvaloniaApp.Views
             _viewModel.GameActive = false;
             Menu.IsVisible = true; // Показываем главное меню
             PauseMenu.IsVisible = false;
-            DrawingCanvas.Children.Clear();
          }
 
 

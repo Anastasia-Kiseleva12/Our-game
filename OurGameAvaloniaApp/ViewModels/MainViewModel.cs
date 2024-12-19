@@ -14,6 +14,8 @@ using LibVLCSharp.Shared;
 using System.Collections.Generic;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using OurGameAvaloniaApp.Views;
+using Avalonia.Collections;
+using System.Security.Cryptography.X509Certificates;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -60,8 +62,8 @@ public class Level : ReactiveObject
 }
 public class LevelManager : ReactiveObject
 {
-    private List<Level> levels = new();
-    private int currentLevelIndex = 0;
+    public List<Level> levels = new();
+    public int currentLevelIndex = 0;
 
     public Level CurrentLevel => levels[currentLevelIndex];
 
@@ -395,8 +397,6 @@ public class MainViewModel : ViewModelBase
         LevelManager.AddLevel(level2);
         LevelManager.AddLevel(level3);
 
-
-        // Убедитесь, что текущий уровень задан
         Level = LevelManager.CurrentLevel;
 
         Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 50) };
@@ -409,7 +409,7 @@ public class MainViewModel : ViewModelBase
               Debug.WriteLine($"IsMoveL: {IsMoveL}, IsMoveR: {IsMoveR}");
             });
 
-        Start = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
+      Start = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
         {
             return Task.Run(() =>
             {
