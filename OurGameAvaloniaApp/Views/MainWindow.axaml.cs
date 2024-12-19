@@ -56,6 +56,8 @@ namespace OurGameAvaloniaApp.Views
             this.KeyDown += Window_KeyDown;
             this.KeyUp += Window_KeyUp;
             this.Opened += OnWindowOpened;
+            Debug.WriteLine("SizeChanged handler is attached.");
+
             try
             {
                 var filePath = @"Resources\music.mp3";
@@ -192,13 +194,29 @@ namespace OurGameAvaloniaApp.Views
                     int.TryParse(dimensions[0], out int width) &&
                     int.TryParse(dimensions[1], out int height))
                 {
+                    // Обновление размера окна
                     this.Width = width;
                     this.Height = height;
+
+                    // Обновление размеров в ViewModel
+                    _viewModel.WindowWidth = width;
+                    _viewModel.WindowHeight = height;
+
+                    // Перерисовка после изменения размера
+                    Redraw(0);
                 }
-                
             }
-            _viewModel.WindowHeight = Convert.ToInt32(this.Height);
-            _viewModel.WindowWidth = Convert.ToInt32(this.Width);
+        }
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            Debug.WriteLine("Window_SizeChanged triggered");
+
+            // Обновляем размеры окна при изменении через событие
+            _viewModel.WindowWidth = (int)e.NewSize.Width;
+            _viewModel.WindowHeight = (int)e.NewSize.Height;
+
+            Debug.WriteLine($"New Window Size: {_viewModel.WindowWidth}x{_viewModel.WindowHeight}");
+
         }
 
         private void PauseGame()
@@ -236,13 +254,15 @@ namespace OurGameAvaloniaApp.Views
         private void Redraw(long tick)
         {
             // Очистим Canvas перед отрисовкой
+            DrawingCanvas.InvalidateVisual();
+
+            // Очистим Canvas перед отрисовкой
             DrawingCanvas.Children.Clear();
 
-            var currentLevel = _viewModel.LevelManager.CurrentLevel;
-            //var pl = _viewModel.P
-            // Получаем размеры Canvas
             var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+
+            var currentLevel = _viewModel.LevelManager.CurrentLevel;
 
             // Уровень земли и её толщина
             const float groundThickness = 10; // Толщина земли
@@ -251,15 +271,13 @@ namespace OurGameAvaloniaApp.Views
             // Отрисовка платформ
             foreach (var platform in currentLevel.Platforms)
             {
-                // Создаем прямоугольник для каждой платформы
                 var platformRectangle = new Rectangle
                 {
                     Fill = Brushes.Gray,
-                    Width = platform.Width,  
+                    Width = platform.Width,
                     Height = platform.Height + 7
                 };
 
-                // Добавляем платформу в Canvas
                 DrawingCanvas.Children.Add(platformRectangle);
 
                 // Отображаем платформу с учетом земли
@@ -277,7 +295,6 @@ namespace OurGameAvaloniaApp.Views
                     Height = currentLevel.Coin.Rad * 2
                 };
                 DrawingCanvas.Children.Add(coinEllipse);
-                // Отображаем монету с учетом земли
                 Canvas.SetLeft(coinEllipse, currentLevel.Coin.Position.X - currentLevel.Coin.Rad);
                 Canvas.SetTop(coinEllipse, groundLevel - currentLevel.Coin.Position.Y - currentLevel.Coin.Rad);
             }
@@ -290,11 +307,8 @@ namespace OurGameAvaloniaApp.Views
                 Height = currentLevel.Portal.Heigth
             };
             DrawingCanvas.Children.Add(portalRectangle);
-
-            // Корректируем положение портала относительно земли
             Canvas.SetLeft(portalRectangle, currentLevel.Portal.Position.X);
             Canvas.SetTop(portalRectangle, groundLevel - currentLevel.Portal.Position.Y - currentLevel.Portal.Heigth);
-
 
             // Отрисовка земли
             var groundRectangle = new Rectangle
@@ -314,6 +328,7 @@ namespace OurGameAvaloniaApp.Views
                 float ballCanvasY = groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad;
 
                 // Ограничиваем положение шарика
+                // Пересчитываем ограничения с учетом новых размеров Canvas
                 ballCanvasY = Math.Clamp(ballCanvasY, 0, canvasHeight - 2 * _viewModel.Ball.Rad);
                 float ballCanvasX = Math.Clamp(_viewModel.Ball.Position.X - _viewModel.Ball.Rad, 0, canvasWidth - 2 * _viewModel.Ball.Rad);
 
@@ -333,7 +348,6 @@ namespace OurGameAvaloniaApp.Views
                 Debug.WriteLine($"Ball position: X={_viewModel.Ball.Position.X}, Y={_viewModel.Ball.Position.Y}");
             }
         }
-
 
     }
 }
