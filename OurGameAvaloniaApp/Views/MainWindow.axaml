@@ -64,6 +64,7 @@
       <StackPanel x:Name="PauseMenu" IsVisible="false" VerticalAlignment="Center" HorizontalAlignment="Center">
          <TextBlock Text="Game Paused" FontSize="45" HorizontalAlignment="Center" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
          <Button Content="Continue" Width="300" Height="50" Margin="15" FontSize="23"  Click="ContinueButton_Click"/>
+         <Button Content="Settings" Width="300" Height="50" Margin="15" FontSize="23" Click="SettingsButton_Click"/>
          <Button Content="Exit to Menu" Width="300" Height="50" Margin="15" FontSize="23"  Click="ExitToMenuButton_Click"/>
       </StackPanel>
    </Grid>
