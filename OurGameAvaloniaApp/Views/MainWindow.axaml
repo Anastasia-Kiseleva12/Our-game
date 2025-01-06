@@ -34,6 +34,9 @@
          <ImageBrush Source="/Assets/background.jpg" Stretch="UniformToFill"/>
       </Grid.Background>  
    <Grid>
+      <StackPanel x:Name="Reference" VerticalAlignment="Top" HorizontalAlignment="Right">
+      <Button Content="?" Width="50" Height="50" Margin="15" FontSize="23"  Click="ReferenceButton_Click"/>
+      </StackPanel>
       <StackPanel x:Name="Menu" VerticalAlignment="Center" HorizontalAlignment="Center">
          <Image Source="/Assets/сафари.png" Width="340" Height="250" HorizontalAlignment="Center" />
          <Button Content="Play" Width="300" Height="50" Margin="15" FontSize="23"  Click="PlayButton_Click"/>
@@ -67,7 +70,28 @@
          <Button Content="Settings" Width="300" Height="50" Margin="15" FontSize="23" Click="SettingsButton_Click"/>
          <Button Content="Exit to Menu" Width="300" Height="50" Margin="15" FontSize="23"  Click="ExitToMenuButton_Click"/>
       </StackPanel>
+      <StackPanel x:Name="ReferenceTextBlock" VerticalAlignment="Top" HorizontalAlignment="Right" IsVisible="false">
+      <Border Margin="0,50,50,0" Background ="#B0E0E6" BorderBrush="#A94B26" CornerRadius="30" BorderThickness="3"  >
+         <TextBlock Margin="7,7,7,7" FontSize="23" Foreground="#A94B26" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Right" Width="450"  Height="250"  >
+            Управление
+            <LineBreak />
+            W - Прыжок
+            <LineBreak />
+            A - Движение влево
+            <LineBreak />
+            D - Движение вправо
+            <LineBreak />
+            Цель игры
+            <LineBreak />
+            1. Собрать все монетки(желтые круги)
+            <LineBreak />
+            2. Добраться до портала(фиолетовый квадрат) для перехода на следующий уровень
+            <LineBreak />
+         </TextBlock>
+        </Border>
+      </StackPanel>
    </Grid>
       <Canvas x:Name="DrawingCanvas" Focusable="True"/>
    </Grid>
 </Window>
+ 

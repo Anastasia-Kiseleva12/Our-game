@@ -240,7 +240,7 @@ namespace OurGameAvaloniaApp.Views
         {
             ResumeGame();
         }
-
+        
         private void ExitToMenuButton_Click(object sender, RoutedEventArgs e)
         {
             // Логика для выхода в главное меню
@@ -250,7 +250,11 @@ namespace OurGameAvaloniaApp.Views
             PauseMenu.IsVisible = false;
          }
 
-
+         
+        private void ReferenceButton_Click(object sender, RoutedEventArgs e)
+        {
+         ReferenceTextBlock.IsVisible = !ReferenceTextBlock.IsVisible;
+        }
         private void Redraw(long tick)
         {
             // Очистим Canvas перед отрисовкой
