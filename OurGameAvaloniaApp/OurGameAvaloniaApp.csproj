@@ -30,7 +30,14 @@
     <PackageReference Include="AvaloniaColorPicker" Version="1.4.0" />
     <PackageReference Include="LibVLCSharp" Version="3.9.1" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="OpenTK" Version="4.9.1" />
     <PackageReference Include="SharpGL" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Update="Assets\music.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </AvaloniaResource>
   </ItemGroup>
 </Project>

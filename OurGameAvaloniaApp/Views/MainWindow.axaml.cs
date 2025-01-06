@@ -12,13 +12,55 @@ using System.Reactive.Linq;
 using System.Numerics;
 using Avalonia.Media.Imaging;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System.Collections.Generic;
+using NAudio.Wave;
+using NAudio.Wave.SampleProviders;
+using System.IO;
+
+
 
 namespace OurGameAvaloniaApp.Views
 {
+   public class AudioPlayer
+   {
+      private IWavePlayer waveOut;
+      private AudioFileReader audioFileReader;
+      private VolumeSampleProvider volumeProvider;
+
+      public float Volume
+      {
+         get => audioFileReader?.Volume ?? 0f;
+         set
+         {
+            if (audioFileReader != null)
+            {
+               audioFileReader.Volume = value; // Устанавливаем громкость
+            }
+         }
+      }
+
+      public void Play(string filePath)
+      {
+         waveOut = new WaveOutEvent();
+         audioFileReader = new AudioFileReader(filePath);
+         volumeProvider = new VolumeSampleProvider(audioFileReader);
+         volumeProvider.Volume = 0.5f;
+         waveOut.Init(volumeProvider);
+         waveOut.Play();
+      }
+
+      public void Stop()
+      {
+         waveOut?.Stop();
+         waveOut?.Dispose();
+         audioFileReader?.Dispose();
+      }
+   }
    public partial class MainWindow : Window
     {
         private Ellipse ballEllipse;
@@ -30,7 +72,7 @@ namespace OurGameAvaloniaApp.Views
         private MainViewModel _viewModel;
         private Rectangle groundRectangle;
         public static bool isPaused = false;
-
+        private AudioPlayer audioPlayer;
       public MainWindow()
         {
             InitializeComponent();
@@ -58,26 +100,21 @@ namespace OurGameAvaloniaApp.Views
             this.Opened += OnWindowOpened;
             Debug.WriteLine("SizeChanged handler is attached.");
 
-            try
-            {
-                var filePath = @"Resources\music.mp3";
-                if (!System.IO.File.Exists(filePath))
-                {
-                    Debug.WriteLine("Файл не найден!");
-                    return;
-                }
+         audioPlayer = new AudioPlayer();
+            PlaySound();
+         VolumeSlider.Value = audioPlayer.Volume;
+      }
+      private void PlaySound()
+      {
+         string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "OurGameAvaloniaApp", "Assets", "music.wav");
+         audioPlayer.Play(filePath);
+      }
 
-                var media = new Media(_libVLC, filePath, FromType.FromPath);
-                _mediaPlayer.Play(media);
-                
-                VolumeSlider.Value = _mediaPlayer.Volume;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка: {ex.Message}");
-            }
-        }
-
+      private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+      {
+         // Устанавливаем громкость в зависимости от значения слайдера
+         audioPlayer.Volume = (float)e.NewValue;
+      }
       private void OnFullScreenChecked(object sender, RoutedEventArgs e)
       {
          this.WindowState = WindowState.FullScreen; // Устанавливаем полноэкранный режим
@@ -169,16 +206,6 @@ namespace OurGameAvaloniaApp.Views
             {
                PauseMenu.IsVisible = false;
                Menu.IsVisible = true;
-            }
-        }
-
-        private void VolumeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
-        {
-            if (_mediaPlayer != null)
-            {
-                double volume = e.NewValue; 
-                _mediaPlayer.Volume = (int)volume;
-                Debug.WriteLine($"Громкость установлена на: {volume}");
             }
         }
 
