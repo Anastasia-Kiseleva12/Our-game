@@ -205,9 +205,6 @@ namespace OurGameAvaloniaApp.Views
                     // Обновление размеров в ViewModel
                     _viewModel.WindowWidth = width;
                     _viewModel.WindowHeight = height;
-
-                    // Перерисовка после изменения размера
-                    Redraw(0);
                 }
             }
         }
