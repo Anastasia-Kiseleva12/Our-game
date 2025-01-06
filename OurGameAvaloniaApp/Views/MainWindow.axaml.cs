@@ -106,7 +106,7 @@ namespace OurGameAvaloniaApp.Views
       }
       private void PlaySound()
       {
-         string filePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "..", "OurGameAvaloniaApp", "Assets", "music.wav");
+         string filePath = System.IO.Path.Combine("Assets", "music.wav");
          audioPlayer.Play(filePath);
       }
 
