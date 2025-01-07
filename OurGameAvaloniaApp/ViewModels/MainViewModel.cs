@@ -135,7 +135,8 @@ public class MainViewModel : ViewModelBase
 
     int windowWidth;
     public int WindowWidth { get => windowWidth; set => this.RaiseAndSetIfChanged(ref windowWidth, value); }
-    public Subject<long> GenerateScene { get; } = new();
+    public Subject<Unit> GenerateScene { get; } = new();
+    public Subject<long> DynamicObjectsUpdated { get; } = new();
 
     private bool isOnGround = true;
 
@@ -240,17 +241,9 @@ public class MainViewModel : ViewModelBase
             // Шарик достигает земли
             newPosition = new Vector2(newPosition.X, groundLevel + Ball.Rad);
 
-            if (Math.Abs(newVelocity.Y) > 350) // Если скорость выше порога
-            {
-                const float bounceFactor = 0.5f; // Коэффициент упругости 
-                newVelocity = new Vector2(newVelocity.X, -newVelocity.Y * bounceFactor); // Создаём отскок
-                isOnGround = false;
-            }
-            else
-            {
                 newVelocity = new Vector2(newVelocity.X, 0);
                 isOnGround = true;
-            }
+            
         }
         else
         {
@@ -407,7 +400,7 @@ public class MainViewModel : ViewModelBase
                 GameActive = true;
                 Ball.Velocity = new Vector2(0, 0);
                 starttime = DateTime.Now;
-
+                GenerateScene.OnNext(Unit.Default);
                 Observable
                     .Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(16))
                     .TakeUntil(this.WhenAnyValue(t => t.GameActive).Where(act => !act))
@@ -415,11 +408,13 @@ public class MainViewModel : ViewModelBase
                     {
                         UpdateMovement(0, MainWindow.isPaused);
                         ApplyPhysics(0, MainWindow.isPaused);
+                        DynamicObjectsUpdated.OnNext(0);
                         if (levelManager.IsLevelComplete(Ball))
                         {
                             if (levelManager.LoadNextLevel())
                             {
                                 Level = levelManager.CurrentLevel; // Обновляем текущий уровень
+                                GenerateScene.OnNext(Unit.Default);
                                 Ball.Position = new Vector2(712, 20); // Сбрасываем позицию шарика
                                 Ball.Velocity = Vector2.Zero; // Сбрасываем скорость шарика
                             }
@@ -428,7 +423,6 @@ public class MainViewModel : ViewModelBase
                                 GameActive = false; // Конец игры
                             }
                         }
-                        GenerateScene.OnNext(0);
 
                     });
                 Debug.WriteLine($"IsMoveL: {IsMoveL}, IsMoveR: {IsMoveR}");

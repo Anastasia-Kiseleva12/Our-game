@@ -40,17 +40,17 @@ namespace OurGameAvaloniaApp.Views
          }
       }
 
-      public void Play(string filePath)
-      {
-         waveOut = new WaveOutEvent();
-         audioFileReader = new AudioFileReader(filePath);
-         volumeProvider = new VolumeSampleProvider(audioFileReader);
-         volumeProvider.Volume = 0.005f;
-         waveOut.Init(volumeProvider);
-         waveOut.Play();
-      }
+        public void Play(string filePath)
+        {
+            waveOut = new WaveOutEvent();
+            audioFileReader = new AudioFileReader(filePath);
+            volumeProvider = new VolumeSampleProvider(audioFileReader);
+            volumeProvider.Volume = 0.005f;
+            waveOut.Init(volumeProvider);
+            waveOut.Play();
+        }
 
-      public void Stop()
+        public void Stop()
       {
          waveOut?.Stop();
          waveOut?.Dispose();
@@ -74,8 +74,6 @@ namespace OurGameAvaloniaApp.Views
             InitializeComponent();  // Сначала инициализируем компоненты, чтобы XAML правильно установил DataContext
             _viewModel = (MainViewModel)DataContext;  // Теперь _viewModel не будет null
 
-            // Дальнейшая инициализация
-            InitializeDrawingObjects();
             Core.Initialize();
             this.Focus();
             var fullScreenCheckBox = this.FindControl<CheckBox>("FullScreenCheckBox");
@@ -90,14 +88,17 @@ namespace OurGameAvaloniaApp.Views
 
          _viewModel.GenerateScene
            .ObserveOn(RxApp.MainThreadScheduler)  // Обновление UI в главном потоке
-           .Subscribe(Redraw);
+           .Subscribe(_ => InitializeDrawingObjects(_viewModel.LevelManager.CurrentLevel));
+         _viewModel.DynamicObjectsUpdated
+                .ObserveOn(RxApp.MainThreadScheduler)
+                .Subscribe(Redraw);
             this.KeyDown += Window_KeyDown;
             this.KeyUp += Window_KeyUp;
             this.Opened += OnWindowOpened;
             Debug.WriteLine("SizeChanged handler is attached.");
 
          audioPlayer = new AudioPlayer();
-            PlaySound();
+            //PlaySound();
          VolumeSlider.Value = audioPlayer.Volume;
       }
       private void PlaySound()
@@ -288,18 +289,28 @@ namespace OurGameAvaloniaApp.Views
         {
             ReferenceTextBlock.IsVisible = !ReferenceTextBlock.IsVisible;
         }
-        private void InitializeDrawingObjects()
+        private void InitializeDrawingObjects(Level level)
         {
-            // Земля
+            DrawingCanvas.Children.Clear(); // Очищаем канвас перед отрисовкой нового уровня
+
+            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
+            var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+            var groundLevel = canvasHeight - 10;
+
+            // Рисуем землю
             _groundRectangle = new Rectangle
             {
                 Fill = Brushes.Brown,
-                Height = 10 // Толщина земли
+                Height = 10,
+                Width = canvasWidth
             };
+            Canvas.SetLeft(_groundRectangle, 0);
+            Canvas.SetTop(_groundRectangle, groundLevel);
             DrawingCanvas.Children.Add(_groundRectangle);
 
-            // Платформы
-            foreach (var platform in _viewModel.LevelManager.CurrentLevel.Platforms)
+            // Рисуем платформы
+            _platforms.Clear();
+            foreach (var platform in level.Platforms)
             {
                 var platformRect = new Rectangle
                 {
@@ -307,54 +318,61 @@ namespace OurGameAvaloniaApp.Views
                     Width = platform.Width,
                     Height = platform.Height + 7
                 };
+                platformRect.RenderTransform = new TranslateTransform(
+                    platform.Position.X,
+                    groundLevel - platform.Position.Y - platform.Height
+                );
                 _platforms.Add(platformRect);
                 DrawingCanvas.Children.Add(platformRect);
             }
 
-            // Монета
+
             _coinEllipse = new Ellipse
             {
-                Fill = Brushes.Gold
+                Fill = Brushes.Gold,
+                Width = level.Coin.Rad * 2,
+                Height = level.Coin.Rad * 2
             };
+            _coinEllipse.RenderTransform = new TranslateTransform(
+                 level.Coin.Position.X - level.Coin.Rad,
+                 groundLevel - level.Coin.Position.Y - level.Coin.Rad
+            );
             DrawingCanvas.Children.Add(_coinEllipse);
 
-            // Портал
+
+            // Рисуем портал
             _portalRectangle = new Rectangle
             {
-                Fill = Brushes.Purple
+                Fill = level.IsCoinCollected ? Brushes.Green : Brushes.Purple,
+                Width = level.Portal.Width,
+                Height = level.Portal.Heigth
             };
+            _portalRectangle.RenderTransform = new TranslateTransform(
+                level.Portal.Position.X,
+                groundLevel - level.Portal.Position.Y - level.Portal.Heigth
+            );
             DrawingCanvas.Children.Add(_portalRectangle);
 
-            // Шарик
+            // Рисуем шарик
+
             _ballEllipse = new Ellipse
             {
-                Fill = Brushes.Cyan
+                Fill = Brushes.Cyan,
+                Width = _viewModel.Ball.Rad * 2,
+                Height = _viewModel.Ball.Rad * 2
             };
             DrawingCanvas.Children.Add(_ballEllipse);
+            _ballEllipse.RenderTransform = new TranslateTransform(
+            _viewModel.Ball.Position.X - _viewModel.Ball.Rad,
+            groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad
+            );
         }
         private void Redraw(long tick)
         {
-            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             var groundLevel = canvasHeight - 10; // Уровень земли
             var currentLevel = _viewModel.LevelManager.CurrentLevel;
-
-            // Обновляем землю
-            _groundRectangle.Width = canvasWidth;
-            Canvas.SetLeft(_groundRectangle, 0);
-            Canvas.SetTop(_groundRectangle, groundLevel);
-
-            // Обновляем платформы
-            for (int i = 0; i < _platforms.Count; i++)
-            {
-                var platform = currentLevel.Platforms[i];
-                var platformRect = _platforms[i];
-
-                platformRect.Width = platform.Width;
-                platformRect.Height = platform.Height + 7;
-
-                platformRect.RenderTransform = new TranslateTransform(platform.Position.X, groundLevel - platform.Position.Y - platform.Height);
-            }
+          
 
             if (currentLevel.Coin != null)
             {
@@ -386,20 +404,13 @@ namespace OurGameAvaloniaApp.Views
             var portalBrush = currentLevel.IsCoinCollected ? Brushes.Green : Brushes.Purple;
             _portalRectangle.Fill = portalBrush;
 
-            _portalRectangle.Width = currentLevel.Portal.Width;
-            _portalRectangle.Height = currentLevel.Portal.Heigth;
-            _portalRectangle.RenderTransform = new TranslateTransform(
-                currentLevel.Portal.Position.X,
-                groundLevel - currentLevel.Portal.Position.Y - currentLevel.Portal.Heigth);
-
             // Обновляем шарик
-            if (_viewModel.Ball != null)
+            if (_ballEllipse != null)
             {
-                float ballCanvasX = Math.Clamp(_viewModel.Ball.Position.X - _viewModel.Ball.Rad, 0, canvasWidth - 2 * _viewModel.Ball.Rad);
-                float ballCanvasY = groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad;
-
-                _ballEllipse.Width = _ballEllipse.Height = _viewModel.Ball.Rad * 2;
-                _ballEllipse.RenderTransform = new TranslateTransform(ballCanvasX, ballCanvasY);
+                _ballEllipse.RenderTransform = new TranslateTransform(
+                    _viewModel.Ball.Position.X - _viewModel.Ball.Rad,
+                    groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad
+                );
             }
         }
 
