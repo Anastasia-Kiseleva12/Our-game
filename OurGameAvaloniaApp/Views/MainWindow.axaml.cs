@@ -190,8 +190,19 @@ namespace OurGameAvaloniaApp.Views
             PauseMenu.IsVisible = false;
             SettingsPanel.IsVisible = true;
         }
+        private void CreditsButton_Click(object sender, RoutedEventArgs e)
+        {
+            Menu.IsVisible = false;
+            CreditsPanel.IsVisible = true;
+        }
 
-        private void BackButton_Click(object sender, RoutedEventArgs e)
+        private void BackCreditsButton_Click(object sender, RoutedEventArgs e)
+        {
+           Menu.IsVisible = true;
+           CreditsPanel.IsVisible = false;
+        }
+
+      private void BackButton_Click(object sender, RoutedEventArgs e)
         {
             SettingsPanel.IsVisible = false;
             if (isPaused)

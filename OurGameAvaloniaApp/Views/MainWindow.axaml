@@ -41,6 +41,7 @@
          <Image Source="/Assets/сафари.png" Width="340" Height="250" HorizontalAlignment="Center" />
          <Button Content="Play" Width="300" Height="50" Margin="15" FontSize="23"  Click="PlayButton_Click"/>
          <Button Content="Settings" Width="300" Height="50" Margin="15" FontSize="23" Click="SettingsButton_Click"/>
+         <Button Content="Credits" Width="300" Height="50" Margin="15" FontSize="23" Click="CreditsButton_Click"/>
          <Button Content="Exit" Width="300" Height="50" Margin="15" FontSize="23" Click="ExitButton_Click"/>
       </StackPanel>
       <StackPanel x:Name="SettingsPanel" IsVisible="false" VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -89,6 +90,31 @@
             <LineBreak />
          </TextBlock>
         </Border>
+      </StackPanel>
+      <StackPanel x:Name="CreditsPanel" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="false">
+         <Border Background="#B0E0E6" BorderBrush="#A94B26" CornerRadius="30" BorderThickness="3">
+            <StackPanel Margin="10">
+               <!-- Используем StackPanel для размещения текста -->
+               <TextBlock FontSize="23" Foreground="#A94B26" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" Width="450"  Height="50">
+                  Разработчики
+               </TextBlock>
+               <TextBlock FontSize="23" Foreground="#A94B26" TextWrapping="Wrap">
+                  <Run Text="Анастасия Киселева" FontWeight="Bold"/>
+                  <LineBreak />
+                  <Run Text="Сидоркин Иван" FontWeight="Bold"/>
+                  <LineBreak />
+                  <Run Text="Назарова Ульяна" FontWeight="Bold"/>
+                  <LineBreak />
+                  <LineBreak />
+                  <LineBreak />
+                  <LineBreak />
+                  <Run Text="Спасибо за игру!" FontWeight="Bold" TextDecorations="Underline"/>
+                  <LineBreak />
+                  <Run Text="НГТУ, ФПМИ, Группа ПМ-15"/>
+               </TextBlock>
+            </StackPanel>
+         </Border>
+         <Button Content="Back" Width="300" Height="50" Margin="15" FontSize="23" Click="BackCreditsButton_Click" HorizontalAlignment="Center"/>
       </StackPanel>
    </Grid>
       <Canvas x:Name="DrawingCanvas" Focusable="True"/>
