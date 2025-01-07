@@ -366,15 +366,14 @@ public class MainViewModel : ViewModelBase
           Platforms = new List<Platform>
         {
             new Platform { Position = new Vector2(0, 300), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
+            new Platform { Position = new Vector2(0, 700), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(300, 150), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(600, 450), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(900, 600), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
-            new Platform { Position = new Vector2(1200, 750), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
-            new Platform { Position = new Vector2(1350, 900), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
             new Platform { Position = new Vector2(1350, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
             new Platform { Position = new Vector2(1350, 350), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
         },
-            Coin = new Coin { Position = new Vector2(150, 350), Rad = 20 },
+            Coin = new Coin { Position = new Vector2(150, 750), Rad = 20 },
             Portal = new Portal { Position = new Vector2(1800, 400), Width = 50, Heigth = 50 }
         };
         var level3 = new Level

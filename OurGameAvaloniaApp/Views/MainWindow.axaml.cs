@@ -79,8 +79,8 @@ namespace OurGameAvaloniaApp.Views
             Core.Initialize();
             this.Focus();
             var fullScreenCheckBox = this.FindControl<CheckBox>("FullScreenCheckBox");
-            this.FindControl<CheckBox>("FullScreenCheckBox").Checked += OnFullScreenChecked;
-            this.FindControl<CheckBox>("FullScreenCheckBox").Unchecked += OnFullScreenUnchecked;
+            FullScreenCheckBox.Checked += OnFullScreenChecked;
+            FullScreenCheckBox.Unchecked += OnFullScreenUnchecked;
             if (fullScreenCheckBox.IsChecked == true)
             {
                this.WindowState = WindowState.FullScreen;
