@@ -1,6 +1,5 @@
 ﻿using System.Numerics;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using ReactiveUI;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -8,13 +7,8 @@ using System.Reactive.Subjects;
 using System;
 using Avalonia.Media;
 using System.Diagnostics;
-using Avalonia.Input;
-using System.Net.Sockets;
-using LibVLCSharp.Shared;
 using System.Collections.Generic;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 using OurGameAvaloniaApp.Views;
-using System.ComponentModel;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -41,6 +35,8 @@ public class Coin : ReactiveObject
    public Vector2 Position { get => position; set => this.RaiseAndSetIfChanged(ref position, value); }
 
    public required float Rad { get; init; }
+    public float RotationAngle { get; set; }
+
 }
 public class Platform : ReactiveObject 
 {
@@ -58,6 +54,9 @@ public class Level : ReactiveObject
     public List<Platform> Platforms { get; set; } = new();
     public Coin Coin { get; set; }
     public Portal Portal { get; set; }
+    public int CollectedCoinsCount { get; set; } = 0; // Счетчик собранных монет
+    public bool IsCoinCollected { get; set; }
+
 }
 
 
@@ -65,9 +64,8 @@ public class LevelManager : ReactiveObject
 {
     public List<Level> levels = new();
     public int currentLevelIndex = 0;
-
+    public int TotalCollectedCoins = 0;
     public Level CurrentLevel => levels[currentLevelIndex];
-
     public void AddLevel(Level level)
     {
         levels.Add(level);
@@ -77,7 +75,7 @@ public class LevelManager : ReactiveObject
     {
         // Проверяем, собрана ли монетка
         if (CurrentLevel.Coin != null &&
-            Vector2.Distance(ball.Position, CurrentLevel.Coin.Position) <= CurrentLevel.Coin.Rad + ball.Rad)
+            CurrentLevel.CollectedCoinsCount >= 2)
         {
             CurrentLevel.Coin = null; // Монетка собрана
         }
@@ -336,6 +334,8 @@ public class MainViewModel : ViewModelBase
             if (distance <= Ball.Rad + Level.Coin.Rad) // Если мяч касается монетки
             {
                 Level.Coin = null; // Монетка исчезает
+                Level.IsCoinCollected = true; // Флаг собранной монеты
+                Level.CollectedCoinsCount += 1;
             }
         }
         return isOnPlatform;
@@ -344,7 +344,6 @@ public class MainViewModel : ViewModelBase
         {
 
         LevelManager = new LevelManager();
-
         // Создаем уровни
         var level1 = new Level
         {
@@ -401,14 +400,6 @@ public class MainViewModel : ViewModelBase
         Level = LevelManager.CurrentLevel;
 
         Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 50) };
-
-        this.WhenAnyValue(x => x.IsMoveL, x => x.IsMoveR)
-            .Subscribe(_ =>
-            {
-                //UpdateMovement(0);
-                // Здесь вы можете выполнять действия, когда флаги изменяются
-              Debug.WriteLine($"IsMoveL: {IsMoveL}, IsMoveR: {IsMoveR}");
-            });
 
       Start = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
         {

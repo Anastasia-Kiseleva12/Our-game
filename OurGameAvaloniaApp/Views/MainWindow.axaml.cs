@@ -1,7 +1,6 @@
 ﻿using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
-using Avalonia.Platform;
 using LibVLCSharp.Shared;
 using OurGameAvaloniaApp.ViewModels;
 using ReactiveUI;
@@ -10,17 +9,13 @@ using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Numerics;
-using Avalonia.Media.Imaging;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using System.Collections.Generic;
 using NAudio.Wave;
 using NAudio.Wave.SampleProviders;
-using System.IO;
+
 
 
 
@@ -49,7 +44,7 @@ namespace OurGameAvaloniaApp.Views
          waveOut = new WaveOutEvent();
          audioFileReader = new AudioFileReader(filePath);
          volumeProvider = new VolumeSampleProvider(audioFileReader);
-         volumeProvider.Volume = 0.5f;
+         volumeProvider.Volume = 0.0f;
          waveOut.Init(volumeProvider);
          waveOut.Play();
       }
@@ -63,25 +58,25 @@ namespace OurGameAvaloniaApp.Views
    }
    public partial class MainWindow : Window
     {
-        private Ellipse ballEllipse;
-        private Platform platform;
-        private Coin coin;
-        private Portal portal;
-        private MediaPlayer _mediaPlayer;
-        private LibVLC _libVLC;
+
         private MainViewModel _viewModel;
-        private Rectangle groundRectangle;
         public static bool isPaused = false;
         private AudioPlayer audioPlayer;
-      public MainWindow()
+        private readonly List<Control> _platforms = new();
+        private Ellipse _ballEllipse;
+        private Ellipse _coinEllipse;
+        private Rectangle _portalRectangle;
+        private Rectangle _groundRectangle;
+
+        public MainWindow()
         {
-            InitializeComponent();
+            InitializeComponent();  // Сначала инициализируем компоненты, чтобы XAML правильно установил DataContext
+            _viewModel = (MainViewModel)DataContext;  // Теперь _viewModel не будет null
+
+            // Дальнейшая инициализация
+            InitializeDrawingObjects();
             Core.Initialize();
             this.Focus();
-            _libVLC = new LibVLC();
-            _mediaPlayer = new MediaPlayer(_libVLC);
-            _viewModel = (MainViewModel)DataContext;
-
             var fullScreenCheckBox = this.FindControl<CheckBox>("FullScreenCheckBox");
             this.FindControl<CheckBox>("FullScreenCheckBox").Checked += OnFullScreenChecked;
             this.FindControl<CheckBox>("FullScreenCheckBox").Unchecked += OnFullScreenUnchecked;
@@ -125,54 +120,54 @@ namespace OurGameAvaloniaApp.Views
          this.WindowState = WindowState.Normal; // Возвращаемся в обычный режим
       }
       private void OnWindowOpened(object sender, EventArgs e)
-        {
-            _viewModel.WindowHeight = Convert.ToInt32(this.Height);
-            _viewModel.WindowWidth = Convert.ToInt32(this.Width);
-        }
-        private void Window_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
-        {
-            if (e.Key == Avalonia.Input.Key.W)
-            {
-                Debug.WriteLine("W key pressed");
-                _viewModel.IsJumping = true;
-            }
-            else if (e.Key == Avalonia.Input.Key.A)
-            {
-                Debug.WriteLine("A key pressed");
-                //_viewModel.MoveLeft.Execute(Unit.Default);
-                _viewModel.IsMoveL = true;
-                _viewModel.IsMoveR = false;
-            }
-            else if (e.Key == Avalonia.Input.Key.D)
-            {
-                Debug.WriteLine("D key pressed");
-                //_viewModel.MoveRight.Execute(Unit.Default);
-                _viewModel.IsMoveL = false;
-                _viewModel.IsMoveR = true;
-            }
-            else if (e.Key == Key.Escape)
-            {
-                if (isPaused && _viewModel.GameActive)
-                {
+      {
+         _viewModel.WindowHeight = Convert.ToInt32(this.Height);
+         _viewModel.WindowWidth = Convert.ToInt32(this.Width);
+      }
+      private void Window_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+      {
+         if (e.Key == Avalonia.Input.Key.W)
+         {
+             Debug.WriteLine("W key pressed");
+             _viewModel.IsJumping = true;
+         }
+         else if (e.Key == Avalonia.Input.Key.A)
+         {
+             Debug.WriteLine("A key pressed");
+             //_viewModel.MoveLeft.Execute(Unit.Default);
+             _viewModel.IsMoveL = true;
+             _viewModel.IsMoveR = false;
+         }
+         else if (e.Key == Avalonia.Input.Key.D)
+         {
+             Debug.WriteLine("D key pressed");
+             //_viewModel.MoveRight.Execute(Unit.Default);
+             _viewModel.IsMoveL = false;
+             _viewModel.IsMoveR = true;
+         }
+         else if (e.Key == Key.Escape)
+         {
+             if (isPaused && _viewModel.GameActive)
+             {
 
-                  ResumeGame();
-                }
-                else if(_viewModel.GameActive)
-                {  
+               ResumeGame();
+             }
+             else if(_viewModel.GameActive)
+             {  
 
-                  PauseGame();
-                }
-            }
-        }
+               PauseGame();
+             }
+         }
+      }
 
-        private void Window_KeyUp(object sender, Avalonia.Input.KeyEventArgs e)
-        {
-            if (e.Key == Avalonia.Input.Key.A || e.Key == Avalonia.Input.Key.D)
-            {
-                _viewModel.IsMoveL = false;
-                _viewModel.IsMoveR = false;
-            }
-        }
+      private void Window_KeyUp(object sender, Avalonia.Input.KeyEventArgs e)
+      {
+          if (e.Key == Avalonia.Input.Key.A || e.Key == Avalonia.Input.Key.D)
+          {
+              _viewModel.IsMoveL = false;
+              _viewModel.IsMoveR = false;
+          }
+      }
 
 
         private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -276,109 +271,125 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = true; // Показываем главное меню
             PauseMenu.IsVisible = false;
          }
-
-         
         private void ReferenceButton_Click(object sender, RoutedEventArgs e)
         {
-         ReferenceTextBlock.IsVisible = !ReferenceTextBlock.IsVisible;
+            ReferenceTextBlock.IsVisible = !ReferenceTextBlock.IsVisible;
         }
-        private void Redraw(long tick)
+        private void InitializeDrawingObjects()
         {
-            // Очистим Canvas перед отрисовкой
-            DrawingCanvas.InvalidateVisual();
-
-            // Очистим Canvas перед отрисовкой
-            DrawingCanvas.Children.Clear();
-
-            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
-            var canvasHeight = (float)DrawingCanvas.Bounds.Height;
-
-            var currentLevel = _viewModel.LevelManager.CurrentLevel;
-
-            // Уровень земли и её толщина
-            const float groundThickness = 10; // Толщина земли
-            float groundLevel = canvasHeight - groundThickness; // Уровень земли (нижняя граница)
-
-            // Отрисовка платформ
-            foreach (var platform in currentLevel.Platforms)
+            // Земля
+            _groundRectangle = new Rectangle
             {
-                var platformRectangle = new Rectangle
+                Fill = Brushes.Brown,
+                Height = 10 // Толщина земли
+            };
+            DrawingCanvas.Children.Add(_groundRectangle);
+
+            // Платформы
+            foreach (var platform in _viewModel.LevelManager.CurrentLevel.Platforms)
+            {
+                var platformRect = new Rectangle
                 {
                     Fill = Brushes.Gray,
                     Width = platform.Width,
                     Height = platform.Height + 7
                 };
-
-                DrawingCanvas.Children.Add(platformRectangle);
-
-                // Отображаем платформу с учетом земли
-                Canvas.SetLeft(platformRectangle, platform.Position.X);
-                Canvas.SetTop(platformRectangle, groundLevel - platform.Position.Y - platform.Height);
+                _platforms.Add(platformRect);
+                DrawingCanvas.Children.Add(platformRect);
             }
 
-            // Отрисовка монеты
+            // Монета
+            _coinEllipse = new Ellipse
+            {
+                Fill = Brushes.Gold
+            };
+            DrawingCanvas.Children.Add(_coinEllipse);
+
+            // Портал
+            _portalRectangle = new Rectangle
+            {
+                Fill = Brushes.Purple
+            };
+            DrawingCanvas.Children.Add(_portalRectangle);
+
+            // Шарик
+            _ballEllipse = new Ellipse
+            {
+                Fill = Brushes.Cyan
+            };
+            DrawingCanvas.Children.Add(_ballEllipse);
+        }
+        private void Redraw(long tick)
+        {
+            var canvasWidth = (float)DrawingCanvas.Bounds.Width;
+            var canvasHeight = (float)DrawingCanvas.Bounds.Height;
+            var groundLevel = canvasHeight - 10; // Уровень земли
+            var currentLevel = _viewModel.LevelManager.CurrentLevel;
+
+            // Обновляем землю
+            _groundRectangle.Width = canvasWidth;
+            Canvas.SetLeft(_groundRectangle, 0);
+            Canvas.SetTop(_groundRectangle, groundLevel);
+
+            // Обновляем платформы
+            for (int i = 0; i < _platforms.Count; i++)
+            {
+                var platform = currentLevel.Platforms[i];
+                var platformRect = _platforms[i];
+
+                platformRect.Width = platform.Width;
+                platformRect.Height = platform.Height + 7;
+
+                platformRect.RenderTransform = new TranslateTransform(platform.Position.X, groundLevel - platform.Position.Y - platform.Height);
+            }
+
             if (currentLevel.Coin != null)
             {
-                var coinEllipse = new Ellipse
+                // Настраиваем размеры и положение монеты
+                _coinEllipse.Width = _coinEllipse.Height = currentLevel.Coin.Rad * 2;
+                _coinEllipse.RenderTransform = new TranslateTransform(
+                    currentLevel.Coin.Position.X - currentLevel.Coin.Rad,
+                    groundLevel - currentLevel.Coin.Position.Y - currentLevel.Coin.Rad);
+
+                // Если монета ранее скрыта, добавляем её обратно
+                if (!DrawingCanvas.Children.Contains(_coinEllipse))
                 {
-                    Fill = Brushes.Gold,
-                    Width = currentLevel.Coin.Rad * 2,
-                    Height = currentLevel.Coin.Rad * 2
-                };
-                DrawingCanvas.Children.Add(coinEllipse);
-                Canvas.SetLeft(coinEllipse, currentLevel.Coin.Position.X - currentLevel.Coin.Rad);
-                Canvas.SetTop(coinEllipse, groundLevel - currentLevel.Coin.Position.Y - currentLevel.Coin.Rad);
+                    DrawingCanvas.Children.Add(_coinEllipse);
+                }
+
+                _coinEllipse.Fill = Brushes.Gold; // Устанавливаем нормальный цвет монеты
+            }
+            else
+            {
+                // Убираем монету с канваса, если она всё ещё присутствует
+                if (DrawingCanvas.Children.Contains(_coinEllipse))
+                {
+                    DrawingCanvas.Children.Remove(_coinEllipse);
+                }
             }
 
-            // Отрисовка портала
-            var portalRectangle = new Rectangle
-            {
-                Fill = Brushes.Purple,
-                Width = currentLevel.Portal.Width,
-                Height = currentLevel.Portal.Heigth
-            };
-            DrawingCanvas.Children.Add(portalRectangle);
-            Canvas.SetLeft(portalRectangle, currentLevel.Portal.Position.X);
-            Canvas.SetTop(portalRectangle, groundLevel - currentLevel.Portal.Position.Y - currentLevel.Portal.Heigth);
 
-            // Отрисовка земли
-            var groundRectangle = new Rectangle
-            {
-                Fill = Brushes.Brown,
-                Width = canvasWidth,
-                Height = groundThickness
-            };
-            DrawingCanvas.Children.Add(groundRectangle);
-            Canvas.SetLeft(groundRectangle, 0);
-            Canvas.SetTop(groundRectangle, groundLevel);
+            // Обновляем портал
+            var portalBrush = currentLevel.IsCoinCollected ? Brushes.Green : Brushes.Purple;
+            _portalRectangle.Fill = portalBrush;
 
-            // Отрисовка шарика
+            _portalRectangle.Width = currentLevel.Portal.Width;
+            _portalRectangle.Height = currentLevel.Portal.Heigth;
+            _portalRectangle.RenderTransform = new TranslateTransform(
+                currentLevel.Portal.Position.X,
+                groundLevel - currentLevel.Portal.Position.Y - currentLevel.Portal.Heigth);
+
+            // Обновляем шарик
             if (_viewModel.Ball != null)
             {
-                // Переворачиваем ось Y для шарика
+                float ballCanvasX = Math.Clamp(_viewModel.Ball.Position.X - _viewModel.Ball.Rad, 0, canvasWidth - 2 * _viewModel.Ball.Rad);
                 float ballCanvasY = groundLevel - _viewModel.Ball.Position.Y - _viewModel.Ball.Rad;
 
-                // Ограничиваем положение шарика
-                // Пересчитываем ограничения с учетом новых размеров Canvas
-                ballCanvasY = Math.Clamp(ballCanvasY, 0, canvasHeight - 2 * _viewModel.Ball.Rad);
-                float ballCanvasX = Math.Clamp(_viewModel.Ball.Position.X - _viewModel.Ball.Rad, 0, canvasWidth - 2 * _viewModel.Ball.Rad);
-
-                var ballEllipse = new Ellipse
-                {
-                    Fill = Brushes.Cyan,
-                    Width = _viewModel.Ball.Rad * 2,
-                    Height = _viewModel.Ball.Rad * 2
-                };
-                DrawingCanvas.Children.Add(ballEllipse);
-                Canvas.SetLeft(ballEllipse, ballCanvasX);
-                Canvas.SetTop(ballEllipse, ballCanvasY);
-
-                // Логирование для отладки
-                Debug.WriteLine($"Canvas Dimensions: {canvasWidth}x{canvasHeight}");
-                Debug.WriteLine($"Ground: {groundLevel}");
-                Debug.WriteLine($"Ball position: X={_viewModel.Ball.Position.X}, Y={_viewModel.Ball.Position.Y}");
+                _ballEllipse.Width = _ballEllipse.Height = _viewModel.Ball.Rad * 2;
+                _ballEllipse.RenderTransform = new TranslateTransform(ballCanvasX, ballCanvasY);
             }
         }
+
 
     }
 }

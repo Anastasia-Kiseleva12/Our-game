@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net7.0-windows</TargetFramework>
+    <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
@@ -28,11 +28,8 @@
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
     <PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.2.2" />
     <PackageReference Include="AvaloniaColorPicker" Version="1.4.0" />
-    <PackageReference Include="LibVLCSharp" Version="3.9.1" />
     <PackageReference Include="LibVLCSharp.Avalonia" Version="3.9.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="OpenTK" Version="4.9.1" />
-    <PackageReference Include="SharpGL" Version="3.1.1" />
   </ItemGroup>
 
   <ItemGroup>
