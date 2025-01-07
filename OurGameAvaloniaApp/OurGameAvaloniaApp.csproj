@@ -15,6 +15,11 @@
 
   
   <ItemGroup>
+    <AvaloniaResource Remove="Assets\music.wav" />
+  </ItemGroup>
+
+  
+  <ItemGroup>
     <None Remove="Assets\logo.ico" />
     <None Remove="Assets\сафари.png" />
   </ItemGroup>
@@ -33,8 +38,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AvaloniaResource Update="Assets\music.wav">
+    <Resource Include="Assets\music.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </AvaloniaResource>
+    </Resource>
   </ItemGroup>
 </Project>

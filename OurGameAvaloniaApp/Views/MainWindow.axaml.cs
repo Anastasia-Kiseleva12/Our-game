@@ -5,6 +5,7 @@ using LibVLCSharp.Shared;
 using OurGameAvaloniaApp.ViewModels;
 using ReactiveUI;
 using System;
+using System.IO;
 using System.Diagnostics;
 using System.Reactive;
 using System.Reactive.Linq;
@@ -44,7 +45,7 @@ namespace OurGameAvaloniaApp.Views
          waveOut = new WaveOutEvent();
          audioFileReader = new AudioFileReader(filePath);
          volumeProvider = new VolumeSampleProvider(audioFileReader);
-         volumeProvider.Volume = 0.0f;
+         volumeProvider.Volume = 0.005f;
          waveOut.Init(volumeProvider);
          waveOut.Play();
       }
@@ -101,7 +102,8 @@ namespace OurGameAvaloniaApp.Views
       }
       private void PlaySound()
       {
-         string filePath = System.IO.Path.Combine("Assets", "music.wav");
+         string relativePath = "Assets/music.wav";
+         string filePath = System.IO.Path.Combine(AppContext.BaseDirectory, relativePath);
          audioPlayer.Play(filePath);
       }
 
