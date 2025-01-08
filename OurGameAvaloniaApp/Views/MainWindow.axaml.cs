@@ -19,8 +19,6 @@ using NAudio.Wave.SampleProviders;
 using Avalonia.Threading;
 
 
-
-
 namespace OurGameAvaloniaApp.Views
 {
    public class AudioPlayer
@@ -70,7 +68,6 @@ namespace OurGameAvaloniaApp.Views
       {
          InitializeComponent();  // Сначала инициализируем компоненты, чтобы XAML правильно установил DataContext
          _viewModel = (MainViewModel)DataContext;  // Теперь _viewModel не будет null
-
          Core.Initialize();
          this.Focus();
          var fullScreenCheckBox = this.FindControl<CheckBox>("FullScreenCheckBox");
@@ -81,7 +78,6 @@ namespace OurGameAvaloniaApp.Views
             this.WindowState = WindowState.FullScreen;
          }
          DataContext = this; // Устанавливаем DataContext для привязки
-
          _viewModel.WhenAnyValue(vm => vm.GameActive)
          .Skip(1) // Пропускаем начальное значение
          .ObserveOn(RxApp.MainThreadScheduler)
@@ -105,7 +101,6 @@ namespace OurGameAvaloniaApp.Views
          this.KeyUp += Window_KeyUp;
          this.Opened += OnWindowOpened;
          Debug.WriteLine("SizeChanged handler is attached.");
-
          audioPlayer = new AudioPlayer();
          PlaySound();
          VolumeSlider.Value = audioPlayer.Volume;
