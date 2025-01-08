@@ -11,7 +11,7 @@
 
 
    <Window.DataContext>
-      <vm:MainViewModel />
+   <vm:MainViewModel/>
    </Window.DataContext>
  
    <Window.Styles>
@@ -45,25 +45,25 @@
          <Button Content="Exit" Width="300" Height="50" Margin="15" FontSize="23" Click="ExitButton_Click"/>
       </StackPanel>
       <StackPanel x:Name="SettingsPanel" IsVisible="false" VerticalAlignment="Center" HorizontalAlignment="Center">
-            <TextBlock Text="Settings" FontSize="45" HorizontalAlignment="Center" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
-            <TextBlock Text="Volume" Margin="0,30,0,0" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
-            <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged"/>
-            <TextBlock Text="Window size" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
-            <ComboBox x:Name="WindowSizeComboBox"  HorizontalAlignment="Center" VerticalAlignment="Top" Width="150" Margin="0,10,0,20" SelectionChanged="WindowSizeComboBox_SelectionChanged"  >
-               <ComboBoxItem>800x600</ComboBoxItem>
-               <ComboBoxItem>1024x768</ComboBoxItem>
-               <ComboBoxItem>1280x720</ComboBoxItem>
-               <ComboBoxItem>1920x1080</ComboBoxItem>
-            </ComboBox>
-            <TextBlock Text="Full screen" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
-            <CheckBox x:Name="FullScreenCheckBox" 
-                      IsChecked="True" 
-                      HorizontalAlignment="Center" 
-                      Checked="OnFullScreenChecked" 
-                      Unchecked="OnFullScreenUnchecked"
-                      Foreground="#A94B26"/>
-            <Button Content="Back" Width="150" Height="50" Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="24" FontFamily="{StaticResource FreckleFaceFont}" Click="BackButton_Click" />
-             
+         <TextBlock Text="Settings" FontSize="45" HorizontalAlignment="Center" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
+         <TextBlock Text="Volume" Margin="0,30,0,0" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
+         <Slider x:Name="VolumeSlider" Minimum="0" Maximum="100" Value="50" ValueChanged="VolumeSlider_ValueChanged"/>
+         <TextBlock Text="Window size" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
+         <ComboBox x:Name="WindowSizeComboBox"  HorizontalAlignment="Center" VerticalAlignment="Top" Width="150" Margin="0,10,0,20" SelectionChanged="WindowSizeComboBox_SelectionChanged"  >
+            <ComboBoxItem>800x600</ComboBoxItem>
+            <ComboBoxItem>1024x768</ComboBoxItem>
+            <ComboBoxItem>1280x720</ComboBoxItem>
+            <ComboBoxItem>1920x1080</ComboBoxItem>
+         </ComboBox>
+         <TextBlock Text="Full screen" Margin="0,25,0,10" HorizontalAlignment="Center" FontSize="37" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26" />
+         <CheckBox x:Name="FullScreenCheckBox" 
+                   IsChecked="True" 
+                   HorizontalAlignment="Center" 
+                   Checked="OnFullScreenChecked" 
+                   Unchecked="OnFullScreenUnchecked"
+                   Foreground="#A94B26"/>
+         <Button Content="Back" Width="150" Height="50" Margin="0,20,0,0" HorizontalAlignment="Center" FontSize="24" FontFamily="{StaticResource FreckleFaceFont}" Click="BackButton_Click" />
+          
       </StackPanel>
       <StackPanel x:Name="PauseMenu" IsVisible="false" VerticalAlignment="Center" HorizontalAlignment="Center">
          <TextBlock Text="Game Paused" FontSize="45" HorizontalAlignment="Center" FontFamily="{StaticResource FreckleFaceFont}" Foreground="#A94B26"/>
@@ -72,29 +72,21 @@
          <Button Content="Exit to Menu" Width="300" Height="50" Margin="15" FontSize="23"  Click="ExitToMenuButton_Click"/>
       </StackPanel>
       <StackPanel x:Name="ReferenceTextBlock" VerticalAlignment="Top" HorizontalAlignment="Right" IsVisible="false">
-      <Border Margin="0,50,50,0" Background ="#B0E0E6" BorderBrush="#A94B26" CornerRadius="30" BorderThickness="3"  >
+      <Border Margin="0,50,50,0" Background ="#B0E0E6" BorderBrush="#A94B26" CornerRadius="30" BorderThickness="3">
          <TextBlock Margin="7,7,7,7" FontSize="23" Foreground="#A94B26" TextWrapping="Wrap" VerticalAlignment="Top" HorizontalAlignment="Right" Width="450"  Height="250"  >
-            Управление
-            <LineBreak />
-            W - Прыжок
-            <LineBreak />
-            A - Движение влево
-            <LineBreak />
-            D - Движение вправо
-            <LineBreak />
-            Цель игры
-            <LineBreak />
-            1. Собрать все монетки(желтые круги)
-            <LineBreak />
-            2. Добраться до портала(фиолетовый квадрат) для перехода на следующий уровень
-            <LineBreak />
+            Управление<LineBreak />
+            W - Прыжок<LineBreak />
+            A - Движение влево<LineBreak />
+            D - Движение вправо<LineBreak />
+            Цель игры<LineBreak />
+            1. Собрать все монетки(желтые круги)<LineBreak />
+            2. Добраться до портала(фиолетовый квадрат) для перехода на следующий уровень<LineBreak />
          </TextBlock>
         </Border>
       </StackPanel>
       <StackPanel x:Name="CreditsPanel" VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="false">
          <Border Background="#B0E0E6" BorderBrush="#A94B26" CornerRadius="30" BorderThickness="3">
             <StackPanel Margin="10">
-               <!-- Используем StackPanel для размещения текста -->
                <TextBlock FontSize="23" Foreground="#A94B26" FontWeight="Bold" HorizontalAlignment="Center" TextAlignment="Center" Width="450"  Height="50">
                   Разработчики
                </TextBlock>
@@ -104,10 +96,7 @@
                   <Run Text="Сидоркин Иван" FontWeight="Bold"/>
                   <LineBreak />
                   <Run Text="Назарова Ульяна" FontWeight="Bold"/>
-                  <LineBreak />
-                  <LineBreak />
-                  <LineBreak />
-                  <LineBreak />
+                  <LineBreak /><LineBreak /><LineBreak /><LineBreak />
                   <Run Text="Спасибо за игру!" FontWeight="Bold" TextDecorations="Underline"/>
                   <LineBreak />
                   <Run Text="НГТУ, ФПМИ, Группа ПМ-15"/>
