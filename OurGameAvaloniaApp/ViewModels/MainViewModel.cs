@@ -55,9 +55,8 @@ public class Level : ReactiveObject
     public List<Platform> Platforms { get; set; } = new();
     public Coin Coin { get; set; }
     public Portal Portal { get; set; }
-    public int CollectedCoinsCount { get; set; } = 0; // Счетчик собранных монет
-    public bool IsCoinCollected { get; set; }
-
+    /* public int CollectedCoinsCount { get; set; } = 0;*/ // Счетчик собранных монет
+    public bool IsCoinCollected { get; set; } = false;
 }
 
 
@@ -74,15 +73,8 @@ public class LevelManager : ReactiveObject
 
     public bool IsLevelComplete(Ball ball)
     {
-        // Проверяем, собрана ли монетка
-        if (CurrentLevel.Coin != null &&
-            CurrentLevel.CollectedCoinsCount >= 2)
-        {
-            CurrentLevel.Coin = null; // Монетка собрана
-        }
-
         // Проверяем, находится ли шарик в портале
-        if (CurrentLevel.Coin == null &&
+        if (CurrentLevel.IsCoinCollected &&
             ball.Position.X >= CurrentLevel.Portal.Position.X &&
             ball.Position.X <= CurrentLevel.Portal.Position.X + CurrentLevel.Portal.Width &&
             ball.Position.Y >= CurrentLevel.Portal.Position.Y &&
@@ -117,12 +109,9 @@ public class MainViewModel : ViewModelBase
 
     Level level;
     public Level Level { get => level; set => this.RaiseAndSetIfChanged(ref level, value); }
-    public DrawingImage Screen { get; } = new DrawingImage();
     public ReactiveCommand<Unit, Unit> Start { get; }
 
-   public ReactiveCommand<Unit, Unit> End { get; }
-
-   float ballMass = 1;
+    float ballMass = 1;
     public float BallMass { get => ballMass; set => this.RaiseAndSetIfChanged(ref ballMass, value); }
     float ballRad = 20;
     public float BallRad { get => ballRad; set => this.RaiseAndSetIfChanged(ref ballRad, value); }
@@ -327,16 +316,14 @@ public class MainViewModel : ViewModelBase
 
             if (distance <= Ball.Rad + Level.Coin.Rad) // Если мяч касается монетки
             {
-                Level.Coin = null; // Монетка исчезает
                 Level.IsCoinCollected = true; // Флаг собранной монеты
-                Level.CollectedCoinsCount += 1;
             }
         }
         return isOnPlatform;
     }
-    public MainViewModel()
-        {
-
+    
+    private void CreateLevels()
+    {
         LevelManager = new LevelManager();
         // Создаем уровни
         var level1 = new Level
@@ -352,12 +339,12 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1100, 650), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
 
         },
-           Coin = new Coin { Position = new Vector2(790, 890), Rad = 20 },
-           Portal = new Portal { Position = new Vector2(1375, 220), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(790, 35), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1375, 35), Width = 50, Heigth = 50 }
         };
-      var level2 = new Level
-      {
-          Platforms = new List<Platform>
+        var level2 = new Level
+        {
+            Platforms = new List<Platform>
         {
             new Platform { Position = new Vector2(0, 300), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(0, 700), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
@@ -367,8 +354,8 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1450, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
             new Platform { Position = new Vector2(1350, 350), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
         },
-            Coin = new Coin { Position = new Vector2(150, 740), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(1500, 370), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(150, 35), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1500, 35), Width = 50, Heigth = 50 }
         };
         var level3 = new Level
         {
@@ -382,8 +369,8 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(300, 650), Velocity = Vector2.Zero , Height = 20 , Width = 500},
             new Platform { Position = new Vector2(0, 850), Velocity = Vector2.Zero , Height = 20 , Width = 270},
         },
-            Coin = new Coin { Position = new Vector2(20, 890), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(1800, 370), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(20, 35), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1800, 35), Width = 50, Heigth = 50 }
         };
 
         LevelManager.AddLevel(level1);
@@ -393,43 +380,46 @@ public class MainViewModel : ViewModelBase
         Level = LevelManager.CurrentLevel;
 
         Ball = new Ball() { Mass = BallMass, Rad = BallRad, Position = new Vector2(712, 50) };
-
+    }
+    public MainViewModel()
+    {
       Start = ReactiveCommand.CreateFromTask<Unit, Unit>(_ =>
+      {
+        return Task.Run(() =>
         {
-            return Task.Run(() =>
-            {
-                GameActive = true;
-                Ball.Velocity = new Vector2(0, 0);
-                starttime = DateTime.Now;
-                GenerateScene.OnNext(Unit.Default);
-                Observable
-                    .Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(16))
-                    .TakeUntil(this.WhenAnyValue(t => t.GameActive).Where(act => !act))
-                    .Subscribe(_ =>
+            GameActive = true;
+            CreateLevels();
+            Ball.Velocity = new Vector2(0, 0);
+            starttime = DateTime.Now;
+            GenerateScene.OnNext(Unit.Default);
+            Observable
+                .Timer(TimeSpan.Zero, TimeSpan.FromMilliseconds(16))
+                .TakeUntil(this.WhenAnyValue(t => t.GameActive).Where(act => !act))
+                .Subscribe(_ =>
+                {
+                    UpdateMovement(0, MainWindow.isPaused);
+                    ApplyPhysics(0, MainWindow.isPaused);
+                    DynamicObjectsUpdated.OnNext(0);
+                    if (levelManager.IsLevelComplete(Ball))
                     {
-                        UpdateMovement(0, MainWindow.isPaused);
-                        ApplyPhysics(0, MainWindow.isPaused);
-                        DynamicObjectsUpdated.OnNext(0);
-                        if (levelManager.IsLevelComplete(Ball))
+                        if (levelManager.LoadNextLevel())
                         {
-                            if (levelManager.LoadNextLevel())
-                            {
-                                Level = levelManager.CurrentLevel; // Обновляем текущий уровень
-                                GenerateScene.OnNext(Unit.Default);
-                                Ball.Position = new Vector2(712, 20); // Сбрасываем позицию шарика
-                                Ball.Velocity = Vector2.Zero; // Сбрасываем скорость шарика
-                            }
-                            else
-                            {
-                                GameActive = false; // Конец игры
-                          }
+                            Level = levelManager.CurrentLevel; // Обновляем текущий уровень
+                            GenerateScene.OnNext(Unit.Default);
+                            Ball.Position = new Vector2(712, 20); // Сбрасываем позицию шарика
+                            Ball.Velocity = Vector2.Zero; // Сбрасываем скорость шарика
                         }
+                        else
+                        {
+                            GameActive = false; // Конец игры
+                      }
+                    }
 
-                    });
-                Debug.WriteLine($"IsMoveL: {IsMoveL}, IsMoveR: {IsMoveR}");
-                return Unit.Default;
-            });
-        }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => !active));
+                });
+            Debug.WriteLine($"IsMoveL: {IsMoveL}, IsMoveR: {IsMoveR}");
+            return Unit.Default;
+        });
+      }, this.WhenAnyValue(t => t.GameActive).ObserveOn(RxApp.MainThreadScheduler).Select(active => !active));
 
     }
 }
