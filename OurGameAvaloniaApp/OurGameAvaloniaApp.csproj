@@ -24,6 +24,14 @@
     <None Remove="Assets\сафари.png" />
   </ItemGroup>
 
+  
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\music.wav">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Assets\safari.png" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.2.2" />
     <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.2.2" />
@@ -38,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\music.wav">
+    <Resource Include="Assets\safari.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

@@ -45,7 +45,7 @@ namespace OurGameAvaloniaApp.Views
             waveOut = new WaveOutEvent();
             audioFileReader = new AudioFileReader(filePath);
             volumeProvider = new VolumeSampleProvider(audioFileReader);
-            volumeProvider.Volume = 0.005f;
+            volumeProvider.Volume = 0.5f;
             waveOut.Init(volumeProvider);
             waveOut.Play();
         }
