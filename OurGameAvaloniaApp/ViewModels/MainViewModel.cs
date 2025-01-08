@@ -9,6 +9,7 @@ using Avalonia.Media;
 using System.Diagnostics;
 using System.Collections.Generic;
 using OurGameAvaloniaApp.Views;
+using Avalonia.Controls;
 namespace OurGameAvaloniaApp.ViewModels;
 
 public class Ball : ReactiveObject
@@ -351,8 +352,8 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(1100, 650), Velocity = Vector2.Zero , Height = 20 , Width = 300 }
 
         },
-           Coin = new Coin { Position = new Vector2(40, 540), Rad = 20 },
-           Portal = new Portal { Position = new Vector2(1300, 0), Width = 50, Heigth = 50 }
+           Coin = new Coin { Position = new Vector2(790, 890), Rad = 20 },
+           Portal = new Portal { Position = new Vector2(1375, 220), Width = 50, Heigth = 50 }
         };
       var level2 = new Level
       {
@@ -363,11 +364,11 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(300, 150), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(600, 450), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
             new Platform { Position = new Vector2(900, 600), Velocity = Vector2.Zero , Height = 20 , Width = 300 },
-            new Platform { Position = new Vector2(1350, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
+            new Platform { Position = new Vector2(1450, 500), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
             new Platform { Position = new Vector2(1350, 350), Velocity = Vector2.Zero , Height = 20 , Width = 800 },
         },
-            Coin = new Coin { Position = new Vector2(150, 750), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(1800, 400), Width = 50, Heigth = 50 }
+            Coin = new Coin { Position = new Vector2(150, 740), Rad = 20 },
+            Portal = new Portal { Position = new Vector2(1500, 370), Width = 50, Heigth = 50 }
         };
         var level3 = new Level
         {
@@ -382,7 +383,7 @@ public class MainViewModel : ViewModelBase
             new Platform { Position = new Vector2(0, 850), Velocity = Vector2.Zero , Height = 20 , Width = 270},
         },
             Coin = new Coin { Position = new Vector2(20, 890), Rad = 20 },
-            Portal = new Portal { Position = new Vector2(1800, 375), Width = 50, Heigth = 50 }
+            Portal = new Portal { Position = new Vector2(1800, 370), Width = 50, Heigth = 50 }
         };
 
         LevelManager.AddLevel(level1);
@@ -421,7 +422,7 @@ public class MainViewModel : ViewModelBase
                             else
                             {
                                 GameActive = false; // Конец игры
-                            }
+                          }
                         }
 
                     });

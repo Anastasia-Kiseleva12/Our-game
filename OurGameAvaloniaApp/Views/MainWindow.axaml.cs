@@ -45,7 +45,7 @@ namespace OurGameAvaloniaApp.Views
             waveOut = new WaveOutEvent();
             audioFileReader = new AudioFileReader(filePath);
             volumeProvider = new VolumeSampleProvider(audioFileReader);
-            volumeProvider.Volume = 0.5f;
+            volumeProvider.Volume = 0.005f;
             waveOut.Init(volumeProvider);
             waveOut.Play();
         }
@@ -100,7 +100,8 @@ namespace OurGameAvaloniaApp.Views
          audioPlayer = new AudioPlayer();
             //PlaySound();
          VolumeSlider.Value = audioPlayer.Volume;
-      }
+
+        }
       private void PlaySound()
       {
          string relativePath = "Assets/music.wav";
@@ -197,7 +198,7 @@ namespace OurGameAvaloniaApp.Views
             CreditsPanel.IsVisible = true;
         }
 
-        private void BackCreditsButton_Click(object sender, RoutedEventArgs e)
+      private void BackCreditsButton_Click(object sender, RoutedEventArgs e)
         {
            Menu.IsVisible = true;
            CreditsPanel.IsVisible = false;
@@ -270,7 +271,17 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = false; 
             DrawingCanvas.IsVisible = true;
             PauseMenu.IsVisible = false;
-      }
+        }
+        
+        private void EndGame()
+        {
+            if (!_viewModel.GameActive)
+            {
+               DrawingCanvas.IsVisible = false;
+               Menu.IsVisible = false;
+               CreditsPanel.IsVisible = true;
+            }
+        }
 
         private void ContinueButton_Click(object sender, RoutedEventArgs e)
         {
@@ -369,6 +380,7 @@ namespace OurGameAvaloniaApp.Views
         }
         private void Redraw(long tick)
         {
+            EndGame();
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             var groundLevel = canvasHeight - 10; // Уровень земли
             var currentLevel = _viewModel.LevelManager.CurrentLevel;

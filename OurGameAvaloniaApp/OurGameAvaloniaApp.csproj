@@ -16,6 +16,8 @@
   
   <ItemGroup>
     <AvaloniaResource Remove="Assets\music.wav" />
+    <AvaloniaResource Remove="Assets\safari.jpg" />
+    <AvaloniaResource Remove="Assets\safari.png" />
   </ItemGroup>
 
   
