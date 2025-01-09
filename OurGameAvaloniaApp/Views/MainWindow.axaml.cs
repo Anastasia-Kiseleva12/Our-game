@@ -64,7 +64,9 @@ namespace OurGameAvaloniaApp.Views
         private Rectangle _portalRectangle;
         private Rectangle _groundRectangle;
         private bool isExitingToMenu = false;
-        public MainWindow()
+        private int _coinCount;
+        private TextBlock _coinCounter;
+      public MainWindow()
         {
             InitializeComponent();  // Сначала инициализируем компоненты, чтобы XAML правильно установил DataContext
             _viewModel = (MainViewModel)DataContext;  // Теперь _viewModel не будет null
@@ -104,7 +106,9 @@ namespace OurGameAvaloniaApp.Views
             audioPlayer = new AudioPlayer();
             PlaySound();
             VolumeSlider.Value = audioPlayer.Volume;
-        }
+            _coinCounter = this.FindControl<TextBlock>("CoinCounter");
+
+      }
         private void PlaySound()
         {
             string relativePath = "Assets/music.wav";
@@ -181,12 +185,17 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = false;
             _viewModel.Start.Execute(Unit.Default);
             DrawingCanvas.IsVisible = true;
-        }
+            _coinCounter.Text = $"{_coinCount}/3 Coins";
+            CoinCount.IsVisible = true;
+            _coinCount = 0;
+            UpdateCoinCounter();
+      }
         private void SettingsButton_Click(object sender, RoutedEventArgs e)
         {
             Menu.IsVisible = false;
             PauseMenu.IsVisible = false;
             SettingsPanel.IsVisible = true;
+
         }
         private void CreditsButton_Click(object sender, RoutedEventArgs e)
         {
@@ -250,10 +259,11 @@ namespace OurGameAvaloniaApp.Views
         }
         private void PauseGame()
         {
-            isPaused = true;
-            Menu.IsVisible = false;
-            DrawingCanvas.IsVisible = false;
-            PauseMenu.IsVisible = true;
+           isPaused = true;
+           Menu.IsVisible = false;
+           DrawingCanvas.IsVisible = false;
+           PauseMenu.IsVisible = true;
+           CoinCount.IsVisible = false;
         }
         private void ResumeGame()
         {
@@ -261,11 +271,13 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = false;
             DrawingCanvas.IsVisible = true;
             PauseMenu.IsVisible = false;
+            CoinCount.IsVisible = true;
         }
         private void EndGame()
         {
             DrawingCanvas.Children.Clear();
             Menu.IsVisible = false;
+            CoinCount.IsVisible = false;
             CreditsPanel.IsVisible = true;
         }
         private void ContinueButton_Click(object sender, RoutedEventArgs e)
@@ -281,15 +293,24 @@ namespace OurGameAvaloniaApp.Views
             Menu.IsVisible = true;
             PauseMenu.IsVisible = false;
             isExitingToMenu = false;
+            CoinCount.IsVisible = false;
         }
         private void ReferenceButton_Click(object sender, RoutedEventArgs e)
         {
             ReferenceTextBlock.IsVisible = !ReferenceTextBlock.IsVisible;
         }
-        private void InitializeDrawingObjects(Level level)
+
+      private void UpdateCoinCounter()
+      {
+         _coinCounter.Text = $"{_coinCount}/3 Coins";
+      }
+
+      private void InitializeDrawingObjects(Level level)
         {
             DrawingCanvas.Children.Clear(); // Очищаем канвас перед отрисовкой нового уровня
             _coinEllipses.Clear(); // Очищаем связи монет и их визуальных элементов
+            _coinCount = 0;
+            UpdateCoinCounter();
             var canvasWidth = (float)DrawingCanvas.Bounds.Width;
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             var groundLevel = canvasHeight - 10;
@@ -370,9 +391,8 @@ namespace OurGameAvaloniaApp.Views
             var canvasHeight = (float)DrawingCanvas.Bounds.Height;
             var groundLevel = canvasHeight - 10; // Уровень земли
             var currentLevel = _viewModel.LevelManager.CurrentLevel;
-
-            // Обрабатываем монеты
-            foreach (var coin in currentLevel.Coins)
+         // Обрабатываем монеты
+         foreach (var coin in currentLevel.Coins)
             {
                 if (_coinEllipses.TryGetValue(coin, out var coinEllipse))
                 {
@@ -382,6 +402,8 @@ namespace OurGameAvaloniaApp.Views
                         if (DrawingCanvas.Children.Contains(coinEllipse))
                         {
                             DrawingCanvas.Children.Remove(coinEllipse);
+                            _coinCount++;
+                            UpdateCoinCounter();
                         }
                     }
                     else

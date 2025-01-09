@@ -82,6 +82,7 @@ public class LevelManager : ReactiveObject
 }
 public class MainViewModel : ViewModelBase
 {
+    private MainWindow _mainWindow;
     Ball ball;
     public Ball Ball { get => ball; set => this.RaiseAndSetIfChanged(ref ball, value); }
 
