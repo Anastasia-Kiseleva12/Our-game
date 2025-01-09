@@ -45,12 +45,26 @@ namespace OurGameAvaloniaApp.Views
             volumeProvider.Volume = 0.005f;
             waveOut.Init(volumeProvider);
             waveOut.Play();
+            waveOut.PlaybackStopped += OnPlaybackStopped;
+        }
+        private void OnPlaybackStopped(object sender, StoppedEventArgs e)
+        {
+           // Проверяем, если произошла ошибка
+           if (e.Exception != null)
+           {
+              // Обработка ошибки
+              Console.WriteLine("Ошибка воспроизведения: " + e.Exception.Message);
+           }
+
+           // Сбрасываем позицию и воспроизводим снова
+           audioFileReader.Position = 0;
+           waveOut.Play();
         }
         public void Stop()
         {
-            waveOut?.Stop();
-            waveOut?.Dispose();
-            audioFileReader?.Dispose();
+           waveOut?.Stop();
+           waveOut?.Dispose();
+           audioFileReader?.Dispose();
         }
     }
     public partial class MainWindow : Window
