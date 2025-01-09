@@ -335,9 +335,9 @@ public class MainViewModel : ViewModelBase
          },
             Coins = new List<Coin>
          {
-            new Coin {Position = new Vector2(790, 890), Rad = 20 },
-            new Coin { Position = new Vector2(850, 550), Rad = 20 },
-            new Coin { Position = new Vector2(1150, 750), Rad = 20 },
+            new Coin {Position = new Vector2(770, 890), Rad = 20 },
+            new Coin { Position = new Vector2(1080, 540), Rad = 20 },
+            new Coin { Position = new Vector2(1380, 690), Rad = 20 },
          },
             Portal = new Portal { Position = new Vector2(1375, 220), Width = 50, Heigth = 50 }
         };
@@ -355,9 +355,9 @@ public class MainViewModel : ViewModelBase
          },
             Coins = new List<Coin>
          {
-            new Coin { Position = new Vector2(150, 740), Rad = 20 },
-            new Coin { Position = new Vector2(200, 350), Rad = 20 },
-            new Coin { Position = new Vector2(300, 380), Rad = 20 }
+            new Coin { Position = new Vector2(20, 740), Rad = 20 },
+            new Coin { Position = new Vector2(880, 490), Rad = 20 },
+            new Coin { Position = new Vector2(1900, 540), Rad = 20 }
          },
             Portal = new Portal { Position = new Vector2(1500, 370), Width = 50, Heigth = 50 }
         };
@@ -376,10 +376,10 @@ public class MainViewModel : ViewModelBase
             Coins = new List<Coin>
          {
             new Coin { Position = new Vector2(20, 890), Rad = 20 },
-            new Coin { Position = new Vector2(200, 350), Rad = 20 },
-            new Coin { Position = new Vector2(300, 380), Rad = 20 }
+            new Coin { Position = new Vector2(20, 20), Rad = 20 },
+            new Coin { Position = new Vector2(1900, 520), Rad = 20 }
          },
-            Portal = new Portal { Position = new Vector2(1600, 375), Width = 50, Heigth = 50 }
+            Portal = new Portal { Position = new Vector2(1600, 370), Width = 50, Heigth = 50 }
         };
 
         LevelManager.AddLevel(level1);
